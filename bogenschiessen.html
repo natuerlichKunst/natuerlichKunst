@@ -357,6 +357,54 @@
         }
         .galerie-item--slideshow:hover img.slide.active { opacity: 1; }
 
+        /* BOGENSPIEL */
+        .spiel-block {
+            max-width: 900px;
+            margin: 0 auto 5rem;
+            padding: 0 3rem;
+        }
+        .spiel-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+            font-weight: 300;
+            color: var(--cream);
+            line-height: 1.15;
+            margin-bottom: 1rem;
+        }
+        .spiel-title em { font-style: italic; color: var(--sage); }
+        .spiel-intro {
+            font-size: 0.95rem;
+            line-height: 1.85;
+            color: var(--cream-dim);
+            max-width: 560px;
+            margin-bottom: 2rem;
+        }
+        .game-wrap {
+            position: relative;
+            max-width: 900px;
+            border: 1px solid rgba(247,242,232,0.08);
+            overflow: hidden;
+        }
+        #archery {
+            width: 100%;
+            height: auto;
+            display: block;
+            cursor: crosshair;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+        .game-hint {
+            text-align: center;
+            padding: 0.75rem;
+            font-size: 0.65rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(247,242,232,0.22);
+            border-top: 1px solid rgba(247,242,232,0.06);
+        }
+        @media (max-width: 640px) { .spiel-block { padding: 0 1.5rem; } }
+
         /* CLOSING */
         .closing {
             max-width: 900px;
@@ -561,6 +609,389 @@
             </div>
         </div>
     </div>
+
+    <!-- ── BOGENSPIEL ── -->
+    <div class="spiel-block reveal">
+        <span class="galerie-title">Probier es aus</span>
+        <h2 class="spiel-title">Finde deinen <em>stillen Moment</em></h2>
+        <p class="spiel-intro">Bogenschiessen lehrt einen einzigen Augenblick: loslassen, wenn der Geist ruhig ist. Hier kannst du es spüren.</p>
+        <div class="game-wrap">
+            <canvas id="archery"></canvas>
+            <div class="game-hint">Klicken &amp; halten zum Spannen &nbsp;·&nbsp; Loslassen zum Schiessen</div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        const canvas = document.getElementById('archery');
+        const ctx = canvas.getContext('2d');
+        const W = 900, H = 420;
+        canvas.width = W;
+        canvas.height = H;
+
+        const TX = W * 0.82, TY = H * 0.50;
+        const BX = W * 0.11, BY = H * 0.50;
+        const TOTAL = 5;
+
+        const C = {
+            bg1: '#0C1810', bg2: '#1E3828',
+            cream: '#F7F2E8', creamDim: 'rgba(247,242,232,0.45)',
+            amber: '#C8963E', amberGlow: 'rgba(200,150,62,0.7)',
+            forest: '#2A4A3C', sage: '#7A9E8A',
+            danger: '#C05545'
+        };
+
+        let st = {
+            phase: 'idle', arrows: TOTAL, score: 0,
+            power: 0, drawStart: null,
+            arrow: null, hit: null, hits: [],
+            flash: 0, flashScore: 0
+        };
+        let wobT = 0;
+
+        function wobble() {
+            const amp = st.phase === 'drawing' ? Math.max(6, 26 - st.power * 22) : 0;
+            return Math.sin(wobT * 2.2) * amp * 0.6 + Math.sin(wobT * 3.7) * amp * 0.4;
+        }
+
+        function drawBg() {
+            const g = ctx.createLinearGradient(0, 0, W, H);
+            g.addColorStop(0, C.bg1);
+            g.addColorStop(1, C.bg2);
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, W, H);
+
+            // Subtle ground fog
+            const fog = ctx.createLinearGradient(0, H * 0.7, 0, H);
+            fog.addColorStop(0, 'transparent');
+            fog.addColorStop(1, 'rgba(8,16,12,0.4)');
+            ctx.fillStyle = fog;
+            ctx.fillRect(0, H * 0.7, W, H * 0.3);
+
+            // Tree silhouettes
+            ctx.fillStyle = 'rgba(6,14,10,0.7)';
+            const trees = [
+                [60, H, 90], [160, H, 70], [250, H, 100], [380, H, 65],
+                [460, H, 85], [580, H, 75], [680, H, 95], [780, H, 68],
+                [860, H, 80], [940, H, 60]
+            ];
+            trees.forEach(([x, y, h]) => {
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x - h * 0.28, y - h);
+                ctx.lineTo(x + h * 0.28, y - h);
+                ctx.closePath();
+                ctx.fill();
+            });
+        }
+
+        function drawTarget() {
+            const rings = [
+                { r: 70, fill: 'rgba(247,242,232,0.05)' },
+                { r: 56, fill: 'rgba(247,242,232,0.08)' },
+                { r: 42, fill: 'rgba(122,158,138,0.18)' },
+                { r: 28, fill: 'rgba(200,150,62,0.28)' },
+                { r: 15, fill: 'rgba(200,150,62,0.55)' },
+                { r: 6,  fill: C.amber }
+            ];
+
+            rings.forEach(ring => {
+                ctx.beginPath();
+                ctx.arc(TX, TY, ring.r, 0, Math.PI * 2);
+                ctx.fillStyle = ring.fill;
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(247,242,232,0.07)';
+                ctx.lineWidth = 0.8;
+                ctx.stroke();
+            });
+
+            // Crosshair
+            ctx.strokeStyle = 'rgba(247,242,232,0.06)';
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(TX - 78, TY); ctx.lineTo(TX + 78, TY);
+            ctx.moveTo(TX, TY - 78); ctx.lineTo(TX, TY + 78);
+            ctx.stroke();
+
+            // Previous hits
+            st.hits.forEach(h => {
+                ctx.beginPath();
+                ctx.arc(TX + h.dx, TY + h.dy, 2.5, 0, Math.PI * 2);
+                ctx.fillStyle = C.amberGlow;
+                ctx.fill();
+            });
+        }
+
+        function drawBow() {
+            const pull = st.phase === 'drawing' ? st.power * 0.55 : 0;
+            const wb = (st.phase === 'drawing' || st.phase === 'idle') ? wobble() : 0;
+
+            // Bow body
+            ctx.strokeStyle = C.amber;
+            ctx.lineWidth = 2.8;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(BX + 6, BY - 58);
+            ctx.quadraticCurveTo(BX - 18 + pull * 32, BY, BX + 6, BY + 58);
+            ctx.stroke();
+
+            // String
+            const strX = BX - pull * 38;
+            ctx.strokeStyle = 'rgba(247,242,232,0.4)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(BX + 6, BY - 58);
+            ctx.lineTo(strX, BY + wb);
+            ctx.lineTo(BX + 6, BY + 58);
+            ctx.stroke();
+
+            // Arrow on string
+            if (st.phase === 'idle' || st.phase === 'drawing') {
+                const aX = strX + 100;
+                const aY = BY + wb;
+                drawArrow(strX, BY + wb, aX, aY);
+            }
+        }
+
+        function drawArrow(x1, y1, x2, y2) {
+            const angle = Math.atan2(y2 - y1, x2 - x1);
+            ctx.save();
+            ctx.translate(x1, y1);
+            ctx.rotate(angle);
+            const len = Math.sqrt((x2-x1)**2 + (y2-y1)**2);
+
+            ctx.strokeStyle = C.cream;
+            ctx.lineWidth = 1.5;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(len, 0);
+            ctx.stroke();
+
+            // Tip
+            ctx.strokeStyle = C.amber;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(len - 10, -4);
+            ctx.lineTo(len, 0);
+            ctx.lineTo(len - 10, 4);
+            ctx.stroke();
+
+            // Fletching
+            ctx.strokeStyle = C.sage;
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.moveTo(8, -5); ctx.lineTo(0, 0); ctx.lineTo(8, 5);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawFlyingArrow() {
+            if (!st.arrow) return;
+            const { x, y, vx, vy } = st.arrow;
+            const angle = Math.atan2(vy, vx);
+            const len = 80;
+            drawArrow(x - Math.cos(angle)*len*0.6, y - Math.sin(angle)*len*0.6,
+                      x + Math.cos(angle)*len*0.4, y + Math.sin(angle)*len*0.4);
+        }
+
+        function drawPowerBar() {
+            if (st.phase !== 'drawing') return;
+            const bW = 160, bH = 5;
+            const bX = W/2 - bW/2, bY = H - 28;
+
+            ctx.fillStyle = 'rgba(247,242,232,0.08)';
+            ctx.fillRect(bX, bY, bW, bH);
+
+            const p = st.power;
+            ctx.fillStyle = p < 0.4 ? 'rgba(200,150,62,0.5)' : p < 0.85 ? C.amber : C.danger;
+            ctx.fillRect(bX, bY, bW * p, bH);
+
+            // Sweet zone markers
+            ctx.strokeStyle = 'rgba(247,242,232,0.3)';
+            ctx.lineWidth = 1;
+            [0.55, 0.85].forEach(pos => {
+                ctx.beginPath();
+                ctx.moveTo(bX + bW * pos, bY - 3);
+                ctx.lineTo(bX + bW * pos, bY + bH + 3);
+                ctx.stroke();
+            });
+
+            ctx.fillStyle = 'rgba(247,242,232,0.28)';
+            ctx.font = '600 9px Raleway, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('ZUGKRAFT', W/2, bY - 7);
+        }
+
+        function drawHUD() {
+            // Arrow icons
+            for (let i = 0; i < TOTAL; i++) {
+                const ax = 28 + i * 18;
+                const ay = H - 22;
+                ctx.strokeStyle = i < st.arrows ? C.amber : 'rgba(247,242,232,0.12)';
+                ctx.lineWidth = i < st.arrows ? 1.5 : 1;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(ax, ay + 7); ctx.lineTo(ax, ay - 7);
+                ctx.moveTo(ax - 3, ay - 3); ctx.lineTo(ax, ay - 7); ctx.lineTo(ax + 3, ay - 3);
+                ctx.stroke();
+            }
+
+            // Score
+            ctx.fillStyle = 'rgba(247,242,232,0.4)';
+            ctx.font = '300 14px Cormorant Garamond, serif';
+            ctx.textAlign = 'right';
+            ctx.fillText(st.score + ' Punkte', W - 24, H - 17);
+        }
+
+        function drawFlashScore() {
+            if (st.flash <= 0 || !st.hit) return;
+            const alpha = Math.min(1, st.flash * 2);
+            const rise = (1 - st.flash) * 18;
+            ctx.fillStyle = `rgba(200,150,62,${alpha})`;
+            ctx.font = `300 ${44 + st.flash * 14}px Cormorant Garamond, serif`;
+            ctx.textAlign = 'center';
+            const label = st.flashScore === 10 ? 'Volltreffer!' :
+                          st.flashScore === 0 ? 'Daneben.' : `+${st.flashScore}`;
+            ctx.fillText(label, W/2, H/2 - 30 - rise);
+        }
+
+        function drawIdleHint() {
+            if (st.phase !== 'idle') return;
+            ctx.fillStyle = 'rgba(247,242,232,0.22)';
+            ctx.font = '600 10px Raleway, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('KLICKEN · HALTEN · LOSLASSEN', W/2, H - 12);
+        }
+
+        function drawGameOver() {
+            ctx.fillStyle = 'rgba(10,18,14,0.88)';
+            ctx.fillRect(0, 0, W, H);
+
+            ctx.textAlign = 'center';
+            ctx.fillStyle = C.cream;
+            ctx.font = '300 80px Cormorant Garamond, serif';
+            ctx.fillText(st.score, W/2, H/2 - 15);
+
+            ctx.fillStyle = C.amber;
+            ctx.font = '600 11px Raleway, sans-serif';
+            ctx.fillText('PUNKTE', W/2, H/2 + 12);
+
+            const msg = st.score >= 42 ? 'Meisterschütze.' :
+                        st.score >= 28 ? 'Du findest die Stille.' :
+                        st.score >= 14 ? 'Der Weg ist sichtbar.' :
+                        'Übung ist der Weg.';
+            ctx.fillStyle = 'rgba(247,242,232,0.5)';
+            ctx.font = '300 20px Cormorant Garamond, serif';
+            ctx.fillText(msg, W/2, H/2 + 50);
+
+            // Restart
+            ctx.strokeStyle = 'rgba(200,150,62,0.45)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(W/2 - 75, H/2 + 78, 150, 36);
+            ctx.fillStyle = 'rgba(247,242,232,0.45)';
+            ctx.font = '600 10px Raleway, sans-serif';
+            ctx.fillText('NOCHMAL', W/2, H/2 + 101);
+        }
+
+        function update() {
+            wobT += 0.035;
+
+            if (st.phase === 'drawing') {
+                st.power = Math.min(1, (Date.now() - st.drawStart) / 2000);
+            }
+
+            if (st.phase === 'flying' && st.arrow) {
+                st.arrow.x += st.arrow.vx;
+                st.arrow.y += st.arrow.vy;
+                st.arrow.vy += 0.1;
+
+                if (st.arrow.x >= TX - 72) {
+                    const dx = st.arrow.x - TX;
+                    const dy = st.arrow.y - TY;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    const sc = dist <= 6 ? 10 : dist <= 15 ? 9 : dist <= 28 ? 7 :
+                               dist <= 42 ? 5 : dist <= 56 ? 3 : dist <= 70 ? 1 : 0;
+
+                    st.score += sc;
+                    st.flashScore = sc;
+                    st.flash = 1.4;
+                    st.hits.push({
+                        dx: Math.max(-68, Math.min(68, dx)),
+                        dy: Math.max(-68, Math.min(68, dy))
+                    });
+                    st.arrow = null;
+                    st.phase = st.arrows > 0 ? 'hit' : 'over';
+                    if (st.phase === 'hit') setTimeout(() => { if (st.phase === 'hit') st.phase = 'idle'; }, 1100);
+                    if (st.phase === 'over') setTimeout(() => { st.phase = 'gameover'; }, 1200);
+                }
+
+                if (st.arrow && st.arrow.x > W + 60) {
+                    st.flashScore = 0; st.flash = 1;
+                    st.arrow = null;
+                    st.phase = st.arrows > 0 ? 'hit' : 'over';
+                    if (st.phase === 'hit') setTimeout(() => { if (st.phase === 'hit') st.phase = 'idle'; }, 1100);
+                    if (st.phase === 'over') setTimeout(() => { st.phase = 'gameover'; }, 1200);
+                }
+            }
+
+            if (st.flash > 0) st.flash -= 0.012;
+        }
+
+        function render() {
+            drawBg();
+            drawTarget();
+            drawBow();
+            if (st.phase === 'flying') drawFlyingArrow();
+            drawHUD();
+            drawPowerBar();
+            drawFlashScore();
+            drawIdleHint();
+            if (st.phase === 'gameover') drawGameOver();
+        }
+
+        function reset() {
+            st = { phase: 'idle', arrows: TOTAL, score: 0, power: 0,
+                   drawStart: null, arrow: null, hit: null, hits: [], flash: 0, flashScore: 0 };
+        }
+
+        function shoot() {
+            if (st.phase !== 'drawing') return;
+            const wb = wobble();
+            const sp = st.power * 16 + 5;
+            const sx = BX - st.power * 38 + 100;
+            const sy = BY + wb;
+            const angle = Math.atan2((TY + wb * (1.4 - st.power)) - sy, TX - sx);
+            st.arrow = { x: sx, y: sy, vx: Math.cos(angle) * sp, vy: Math.sin(angle) * sp };
+            st.arrows--;
+            st.phase = 'flying';
+        }
+
+        canvas.addEventListener('mousedown', e => {
+            if (st.phase === 'gameover') {
+                const r = canvas.getBoundingClientRect();
+                const cx = (e.clientX - r.left) * W / r.width;
+                const cy = (e.clientY - r.top) * H / r.height;
+                if (cx > W/2-75 && cx < W/2+75 && cy > H/2+78 && cy < H/2+114) reset();
+                return;
+            }
+            if (st.phase === 'idle') { st.phase = 'drawing'; st.drawStart = Date.now(); }
+        });
+
+        canvas.addEventListener('mouseup', shoot);
+        canvas.addEventListener('mouseleave', shoot);
+
+        canvas.addEventListener('touchstart', e => {
+            e.preventDefault();
+            if (st.phase === 'gameover') { reset(); return; }
+            if (st.phase === 'idle') { st.phase = 'drawing'; st.drawStart = Date.now(); }
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', e => { e.preventDefault(); shoot(); }, { passive: false });
+
+        (function loop() { update(); render(); requestAnimationFrame(loop); })();
+    })();
+    </script>
 
     <!-- Lightbox -->
     <div class="lightbox" id="lightbox">

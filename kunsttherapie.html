@@ -450,6 +450,131 @@
             0%   { left: 0%; transform: translateX(0%); }
             100% { left: 100%; transform: translateX(-100%); }
         }
+        /* NATURZEICHNEN */
+        .zeichnen-block {
+            max-width: 900px;
+            margin: 0 auto 5rem;
+            padding: 0 3rem;
+        }
+        .zeichnen-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+            font-weight: 300;
+            color: var(--cream);
+            line-height: 1.15;
+            margin-bottom: 1rem;
+        }
+        .zeichnen-title em { font-style: italic; color: var(--sage); }
+        .zeichnen-intro {
+            font-size: 0.95rem;
+            line-height: 1.85;
+            color: var(--cream-dim);
+            max-width: 560px;
+            margin-bottom: 2rem;
+        }
+        .leaf-selector {
+            display: flex;
+            gap: 0;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(240,234,216,0.18);
+            max-width: 700px;
+        }
+        .leaf-btn {
+            flex: 1;
+            padding: 0.9rem 1rem;
+            background: transparent;
+            border: none;
+            border-right: 1px solid rgba(240,234,216,0.14);
+            cursor: pointer;
+            font-family: 'Jost', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--cream-dim);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .leaf-btn:last-child { border-right: none; }
+        .leaf-btn .leaf-latin {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 0.78rem;
+            font-weight: 300;
+            letter-spacing: 0.05em;
+            text-transform: none;
+            color: var(--sage);
+            transition: color 0.3s ease;
+        }
+        .leaf-btn.active {
+            background: var(--amber);
+            color: var(--forest-dark);
+        }
+        .leaf-btn.active .leaf-latin { color: var(--forest-dark); }
+        .leaf-btn:not(.active):hover {
+            background: rgba(240,234,216,0.06);
+            color: var(--cream);
+        }
+        .draw-canvas-wrap {
+            max-width: 700px;
+            position: relative;
+            border: 1px solid rgba(240,234,216,0.18);
+            background: #F9F5EC;
+            overflow: hidden;
+        }
+        #draw-canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+            cursor: crosshair;
+            touch-action: none;
+        }
+        .draw-tools {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.7rem 1rem;
+            max-width: 700px;
+        }
+        .draw-tool-left { display: flex; gap: 0.75rem; align-items: center; }
+        .tool-btn {
+            padding: 0.45rem 1.1rem;
+            background: transparent;
+            border: 1px solid rgba(240,234,216,0.25);
+            font-family: 'Jost', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--cream-dim);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tool-btn:hover { background: rgba(240,234,216,0.08); color: var(--cream); }
+        .tool-btn.active { background: var(--amber); color: var(--forest-dark); border-color: var(--amber); }
+        .size-dots { display: flex; gap: 0.6rem; align-items: center; }
+        .size-dot {
+            border-radius: 50%;
+            background: var(--cream);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            opacity: 0.35;
+        }
+        .size-dot.active { opacity: 1; }
+        .size-dot:hover { opacity: 0.7; }
+        .draw-hint {
+            font-size: 0.68rem;
+            color: var(--cream-dim);
+            font-weight: 300;
+        }
+        @media (max-width: 640px) {
+            .zeichnen-block { padding: 0 1.5rem; }
+            .leaf-btn { font-size: 0.62rem; padding: 0.7rem 0.5rem; }
+        }
+
     </style>
 </head>
 <body>
@@ -544,6 +669,311 @@
     <div class="closing reveal">
         <p>«Vieles, was noch im Unbewussten liegt, wird im Bild und in nonverbaler Gestaltung fassbar und klar.»</p>
     </div>
+
+    <!-- ── NATURZEICHNEN ── -->
+    <div class="zeichnen-block reveal">
+        <span class="galerie-title">Naturzeichnen</span>
+        <h2 class="zeichnen-title">Wähle ein Blatt. <em>Zeichne es nach.</em></h2>
+        <p class="zeichnen-intro">Welche Form entspricht dir heute am besten? Wie möchtest du sie ganz individuell ergänzen? Bleibt es ein Blatt? Wird es etwas Neues?</p>
+            <div class="leaf-selector reveal">
+                <button class="leaf-btn active" data-leaf="loewenzahn">
+                    Löwenzahnblatt
+                    <span class="leaf-latin">Taraxacum officinale</span>
+                </button>
+                <button class="leaf-btn" data-leaf="scharbockraut">
+                    Scharbockkrautblatt
+                    <span class="leaf-latin">Ficaria verna</span>
+                </button>
+                <button class="leaf-btn" data-leaf="eichenblatt">
+                    Eichenblatt
+                    <span class="leaf-latin">Quercus robur</span>
+                </button>
+            </div>
+
+            <div class="draw-canvas-wrap reveal">
+                <canvas id="draw-canvas"></canvas>
+            </div>
+
+            <div class="draw-tools reveal">
+                <div class="draw-tool-left">
+                    <button class="tool-btn" id="clear-btn">Löschen</button>
+                    <button class="tool-btn active" id="guide-btn">Vorlage</button>
+                    <div class="size-dots">
+                        <div class="size-dot active" data-size="4" style="width:8px;height:8px;"></div>
+                        <div class="size-dot" data-size="8" style="width:13px;height:13px;"></div>
+                        <div class="size-dot" data-size="14" style="width:19px;height:19px;"></div>
+                    </div>
+                </div>
+                <span class="draw-hint">Mit Maus oder Finger zeichnen</span>
+            </div>
+    </div>
+
+    <script>
+    (function() {
+        const canvas = document.getElementById('draw-canvas');
+        const ctx = canvas.getContext('2d');
+        const W = 700, H = 480;
+        canvas.width = W;
+        canvas.height = H;
+
+        let currentLeaf = 'loewenzahn';
+        let showGuide = true;
+        let penSize = 4;
+        let drawing = false;
+        let lastX = 0, lastY = 0;
+
+        // ── LEAF PATHS ──────────────────────────────────────────
+
+        function pathLoewenzahn(ctx, cx, cy) {
+            // Long narrow dandelion leaf with runcinate (backward) teeth
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.beginPath();
+            ctx.moveTo(0, 130);
+            ctx.bezierCurveTo(3, 120, 6, 108, 7, 98);
+            // Right side teeth (pointing back toward stem)
+            ctx.lineTo(22, 88); ctx.lineTo(9, 78);
+            ctx.lineTo(16, 65); ctx.lineTo(26, 56); ctx.lineTo(12, 46);
+            ctx.lineTo(18, 33); ctx.lineTo(28, 24); ctx.lineTo(13, 12);
+            ctx.lineTo(17, 0);  ctx.lineTo(26, -10); ctx.lineTo(13, -22);
+            ctx.lineTo(16, -36); ctx.lineTo(24, -47); ctx.lineTo(11, -58);
+            ctx.lineTo(13, -72); ctx.lineTo(20, -83); ctx.lineTo(8, -93);
+            // Tip
+            ctx.bezierCurveTo(4, -104, 0, -110, 0, -112);
+            // Left side teeth
+            ctx.bezierCurveTo(0, -110, -4, -104, -8, -93);
+            ctx.lineTo(-20, -83); ctx.lineTo(-13, -72);
+            ctx.lineTo(-11, -58); ctx.lineTo(-24, -47); ctx.lineTo(-16, -36);
+            ctx.lineTo(-13, -22); ctx.lineTo(-26, -10); ctx.lineTo(-17, 0);
+            ctx.lineTo(-13, 12);  ctx.lineTo(-28, 24); ctx.lineTo(-18, 33);
+            ctx.lineTo(-12, 46);  ctx.lineTo(-26, 56); ctx.lineTo(-16, 65);
+            ctx.lineTo(-9, 78);   ctx.lineTo(-22, 88);
+            ctx.bezierCurveTo(-6, 108, -3, 120, 0, 130);
+            ctx.closePath();
+            ctx.restore();
+        }
+
+        function pathScharbockraut(ctx, cx, cy) {
+            // Heart/kidney-shaped leaf with deep basal sinus
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.beginPath();
+            ctx.moveTo(10, 72);
+            ctx.bezierCurveTo(28, 62, 62, 44, 74, 12);
+            ctx.bezierCurveTo(85, -18, 76, -54, 50, -72);
+            ctx.bezierCurveTo(30, -86, 10, -84, 0, -74);
+            ctx.bezierCurveTo(-10, -84, -30, -86, -50, -72);
+            ctx.bezierCurveTo(-76, -54, -85, -18, -74, 12);
+            ctx.bezierCurveTo(-62, 44, -28, 62, -10, 72);
+            ctx.bezierCurveTo(-6, 78, -2, 80, 0, 78);
+            ctx.bezierCurveTo(2, 80, 6, 78, 10, 72);
+            ctx.closePath();
+            ctx.restore();
+        }
+
+        function pathEichenblatt(ctx, cx, cy) {
+            // Classic oak leaf, obovate with 4 rounded lobes per side + apical lobe
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.beginPath();
+            ctx.moveTo(0, 132);
+            ctx.bezierCurveTo(-5, 122, -9, 110, -10, 98);
+            // Lobe 1 left
+            ctx.bezierCurveTo(-16, 90, -30, 82, -34, 70);
+            ctx.bezierCurveTo(-38, 58, -26, 50, -18, 54);
+            // Lobe 2 left
+            ctx.bezierCurveTo(-24, 42, -40, 32, -44, 18);
+            ctx.bezierCurveTo(-48, 4, -34, -2, -24, 3);
+            // Lobe 3 left
+            ctx.bezierCurveTo(-30, -9, -44, -20, -42, -34);
+            ctx.bezierCurveTo(-40, -48, -26, -52, -17, -46);
+            // Lobe 4 left
+            ctx.bezierCurveTo(-22, -58, -28, -73, -22, -86);
+            ctx.bezierCurveTo(-16, -98, -5, -100, 0, -96);
+            // Tip
+            ctx.bezierCurveTo(-2, -106, 0, -112, 0, -114);
+            ctx.bezierCurveTo(0, -112, 2, -106, 0, -96);
+            // Lobe 4 right
+            ctx.bezierCurveTo(5, -100, 16, -98, 22, -86);
+            ctx.bezierCurveTo(28, -73, 22, -58, 17, -46);
+            // Lobe 3 right
+            ctx.bezierCurveTo(26, -52, 40, -48, 42, -34);
+            ctx.bezierCurveTo(44, -20, 30, -9, 24, 3);
+            // Lobe 2 right
+            ctx.bezierCurveTo(34, -2, 48, 4, 44, 18);
+            ctx.bezierCurveTo(40, 32, 24, 42, 18, 54);
+            // Lobe 1 right
+            ctx.bezierCurveTo(26, 50, 38, 58, 34, 70);
+            ctx.bezierCurveTo(30, 82, 16, 90, 10, 98);
+            ctx.bezierCurveTo(9, 110, 5, 122, 0, 132);
+            ctx.closePath();
+            ctx.restore();
+        }
+
+        function pathMidrib(ctx, cx, cy, leaf) {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.beginPath();
+            if (leaf === 'loewenzahn') {
+                ctx.moveTo(0, 128); ctx.lineTo(0, -110);
+            } else if (leaf === 'scharbockraut') {
+                ctx.moveTo(0, 76); ctx.bezierCurveTo(0, 40, 0, -20, 0, -70);
+            } else {
+                ctx.moveTo(0, 130); ctx.lineTo(0, -112);
+            }
+            ctx.restore();
+        }
+
+        function pathVeins(ctx, cx, cy, leaf) {
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.beginPath();
+            if (leaf === 'loewenzahn') {
+                const v = [[-14,-55,0,-40], [14,0,0,15], [-18,25,0,40],
+                            [16,-20,0,-5], [-10,70,0,85], [10,50,0,65]];
+                v.forEach(([x1,y1,x2,y2]) => { ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); });
+            } else if (leaf === 'scharbockraut') {
+                [[-30,-30,0,-10],[-55,10,0,20],[30,-30,0,-10],[55,10,0,20],
+                 [-15,-50,0,-30],[15,-50,0,-30]].forEach(([x1,y1,x2,y2]) => {
+                    ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+                });
+            } else {
+                [[-20,54,0,40],[-34,3,0,20],[-28,-46,0,-30],[-15,-90,0,-72],
+                 [20,54,0,40],[34,3,0,20],[28,-46,0,-30],[15,-90,0,-72]].forEach(([x1,y1,x2,y2]) => {
+                    ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+                });
+            }
+            ctx.restore();
+        }
+
+        // ── RENDER ──────────────────────────────────────────────
+
+        function renderGuide() {
+            if (!showGuide) return;
+            const cx = W / 2, cy = H / 2 + 8;
+            const fn = { loewenzahn: pathLoewenzahn, scharbockraut: pathScharbockraut, eichenblatt: pathEichenblatt };
+
+            // Leaf fill
+            fn[currentLeaf](ctx, cx, cy);
+            ctx.fillStyle = 'rgba(74,122,101,0.06)';
+            ctx.fill();
+
+            // Leaf outline
+            fn[currentLeaf](ctx, cx, cy);
+            ctx.strokeStyle = 'rgba(42,74,60,0.22)';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 4]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Midrib
+            pathMidrib(ctx, cx, cy, currentLeaf);
+            ctx.strokeStyle = 'rgba(42,74,60,0.15)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Veins
+            pathVeins(ctx, cx, cy, currentLeaf);
+            ctx.strokeStyle = 'rgba(42,74,60,0.1)';
+            ctx.lineWidth = 0.8;
+            ctx.stroke();
+
+            // Label
+            ctx.fillStyle = 'rgba(42,74,60,0.25)';
+            ctx.font = 'italic 300 13px Cormorant Garamond, serif';
+            ctx.textAlign = 'center';
+            const names = { loewenzahn: 'Taraxacum officinale', scharbockraut: 'Ficaria verna', eichenblatt: 'Quercus robur' };
+            ctx.fillText(names[currentLeaf], W/2, H - 18);
+        }
+
+        function redrawGuide() {
+            ctx.clearRect(0, 0, W, H);
+            // Background
+            ctx.fillStyle = '#F9F5EC';
+            ctx.fillRect(0, 0, W, H);
+            renderGuide();
+        }
+
+        // ── DRAWING ─────────────────────────────────────────────
+
+        function getPos(e) {
+            const r = canvas.getBoundingClientRect();
+            const scaleX = W / r.width;
+            const scaleY = H / r.height;
+            if (e.touches) {
+                return {
+                    x: (e.touches[0].clientX - r.left) * scaleX,
+                    y: (e.touches[0].clientY - r.top) * scaleY
+                };
+            }
+            return {
+                x: (e.clientX - r.left) * scaleX,
+                y: (e.clientY - r.top) * scaleY
+            };
+        }
+
+        function startDraw(e) {
+            drawing = true;
+            const pos = getPos(e);
+            lastX = pos.x; lastY = pos.y;
+        }
+
+        function draw(e) {
+            if (!drawing) return;
+            e.preventDefault();
+            const pos = getPos(e);
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.strokeStyle = '#1A3028';
+            ctx.lineWidth = penSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+            lastX = pos.x; lastY = pos.y;
+        }
+
+        function stopDraw() { drawing = false; }
+
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDraw);
+        canvas.addEventListener('mouseleave', stopDraw);
+        canvas.addEventListener('touchstart', e => { e.preventDefault(); startDraw(e); }, { passive: false });
+        canvas.addEventListener('touchmove', e => { e.preventDefault(); draw(e); }, { passive: false });
+        canvas.addEventListener('touchend', stopDraw);
+
+        // ── CONTROLS ────────────────────────────────────────────
+
+        document.querySelectorAll('.leaf-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.leaf-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentLeaf = btn.dataset.leaf;
+                redrawGuide();
+            });
+        });
+
+        document.getElementById('clear-btn').addEventListener('click', redrawGuide);
+
+        document.getElementById('guide-btn').addEventListener('click', function() {
+            showGuide = !showGuide;
+            this.classList.toggle('active', showGuide);
+            redrawGuide();
+        });
+
+        document.querySelectorAll('.size-dot').forEach(dot => {
+            dot.addEventListener('click', function() {
+                document.querySelectorAll('.size-dot').forEach(d => d.classList.remove('active'));
+                this.classList.add('active');
+                penSize = parseInt(this.dataset.size);
+            });
+        });
+
+        // Init
+        redrawGuide();
+    })();
+    </script>
 
     <!-- Lightbox -->
     <div class="lightbox" id="lightbox">
