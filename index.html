@@ -252,7 +252,7 @@
 
         .scroll-indicator {
             position: absolute;
-            bottom: 2.5rem;
+            bottom: 0;
             left: 50%;
             transform: translateX(-50%);
             z-index: 3;
@@ -273,8 +273,8 @@
 
         .scroll-line {
             width: 1px;
-            height: 44px;
-            background: linear-gradient(to bottom, rgba(200, 150, 62, 0.5), transparent);
+            height: 84px;
+            background: linear-gradient(to bottom, rgba(200, 150, 62, 0.15), rgba(200, 150, 62, 0.5) 45%, rgba(200, 150, 62, 0.5));
             animation: scrollPulse 2.2s ease-in-out infinite;
         }
 
@@ -311,7 +311,20 @@
         }
 
         /* ── SERVICES ── */
-        #angebote { background: var(--cream); }
+        #angebote { background: var(--cream); position: relative; }
+
+        .scroll-continue {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1px;
+            height: 120px;
+            background: linear-gradient(to bottom, rgba(200, 150, 62, 0.5), rgba(200, 150, 62, 0));
+            z-index: 2;
+            pointer-events: none;
+            animation: scrollPulse 2.2s ease-in-out infinite;
+        }
 
         .services-intro {
             max-width: 580px;
@@ -1167,6 +1180,7 @@
 
     <!-- ── ANGEBOTE ── -->
     <section id="angebote">
+        <div class="scroll-continue" aria-hidden="true"></div>
         <div class="container">
             <div class="services-intro reveal">
 
