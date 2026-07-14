@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Therapeutisches Bogenschiessen — NatürlichKunst</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            --forest-dark: #1e3d28;
+            --forest:      #2a5238;
+            --sage:        #7a9e7e;
+            --amber:       #c8922a;
+            --amber-light: #e8b84b;
+            --cream:       #f0ead8;
+            --cream-dim:   rgba(240,234,216,0.72);
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            background: var(--forest-dark);
+            color: var(--cream);
+            font-family: 'Jost', sans-serif;
+            font-weight: 300;
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* NAV */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.2rem 3rem;
+            background: rgba(10,26,15,0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(200,146,42,0.15);
+        }
+        .nav-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            font-weight: 300;
+            color: var(--cream);
+            text-decoration: none;
+            letter-spacing: 0.04em;
+        }
+        .nav-logo em { color: var(--amber); font-style: italic; }
+        .nav-back {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--amber-light);
+            text-decoration: none;
+            font-size: 0.8rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            transition: opacity 0.2s;
+        }
+        .nav-back:hover { opacity: 0.7; }
+        .nav-back::before { content: '←'; font-size: 1rem; }
+
+        /* HERO */
+        .hero {
+            padding: 9rem 3rem 5rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .page-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--amber);
+            margin-bottom: 1rem;
+            display: block;
+        }
+        .page-subtitle {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-style: italic;
+            color: var(--sage);
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.02em;
+        }
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(3rem, 7vw, 5.5rem);
+            font-weight: 300;
+            line-height: 1.05;
+            color: var(--cream);
+            margin-bottom: 2rem;
+        }
+        h1 em { font-style: italic; color: var(--amber); }
+        .hero-rule {
+            width: 60px;
+            height: 1px;
+            background: var(--amber);
+            margin-bottom: 2rem;
+        }
+        .hero-intro {
+            font-size: 1.05rem;
+            line-height: 1.85;
+            color: var(--cream-dim);
+            max-width: 620px;
+        }
+
+        /* OPENER */
+        .opener {
+            width: 100%;
+            max-height: 55vh;
+            object-fit: cover;
+            object-position: center 40%;
+            display: block;
+            opacity: 0.92;
+        }
+
+        /* CONTENT */
+        .content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 5rem 3rem;
+        }
+        .text-block {
+            max-width: 640px;
+            margin-bottom: 3.5rem;
+        }
+        .text-block p {
+            font-size: 0.97rem;
+            line-height: 1.9;
+            color: var(--cream-dim);
+            margin-bottom: 1.4rem;
+        }
+
+        /* ELEMENTE LIST */
+        .elemente-title {
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: var(--amber);
+            margin-bottom: 1.2rem;
+            display: block;
+        }
+        .elemente-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem 2rem;
+            margin-bottom: 3.5rem;
+            max-width: 580px;
+        }
+        .elemente-list li {
+            font-size: 0.92rem;
+            line-height: 1.7;
+            color: var(--cream-dim);
+            padding-left: 1.1rem;
+            position: relative;
+        }
+        .elemente-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.72em;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--amber);
+        }
+        @media (max-width: 500px) { .elemente-list { grid-template-columns: 1fr; } }
+
+        /* ABLAUF BLOCK */
+        .ablauf-block {
+            max-width: 640px;
+            margin-bottom: 3.5rem;
+        }
+        .ablauf-block h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            font-weight: 300;
+            color: var(--amber-light);
+            margin-bottom: 1rem;
+        }
+        .ablauf-block p {
+            font-size: 0.97rem;
+            line-height: 1.9;
+            color: var(--cream-dim);
+            margin-bottom: 1.4rem;
+        }
+
+        /* GALERIE TITLE */
+        .galerie-title {
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: var(--amber);
+            margin-bottom: 0.2rem;
+            display: block;
+        }
+
+        /* GALERIE */
+        .galerie {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.8rem;
+            padding: 0 3rem 5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        @media (max-width: 800px) { .galerie { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 500px) { .galerie { grid-template-columns: 1fr; } }
+
+        .galerie-item {
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+        .galerie-item img {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            display: block;
+            opacity: 0.9;
+            transition: opacity 0.3s ease;
+        }
+        .galerie-item:hover img { opacity: 1; }
+        .galerie-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--amber);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+        .galerie-item:hover::after { transform: scaleX(1); }
+
+        /* ZOOM ANIMATIONS */
+        @keyframes zoomOut {
+            0%   { transform: scale(1.35); }
+            40%  { transform: scale(1.0); }
+            70%  { transform: scale(1.0); }
+            100% { transform: scale(1.35); }
+        }
+        .galerie-item--zoomout img {
+            animation: zoomOut 12s ease-in-out infinite !important;
+            transform-origin: center center;
+        }
+        @keyframes zoomIn {
+            0%   { transform: scale(1.0); }
+            40%  { transform: scale(1.35); }
+            70%  { transform: scale(1.35); }
+            100% { transform: scale(1.0); }
+        }
+        .galerie-item--zoomin img {
+            animation: zoomIn 12s ease-in-out infinite !important;
+            transform-origin: center center;
+        }
+
+        /* CLOSING */
+        .closing {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 3rem 6rem;
+            border-top: 1px solid rgba(200,146,42,0.2);
+        }
+        .closing p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            font-style: italic;
+            color: var(--cream-dim);
+            line-height: 1.7;
+            max-width: 600px;
+        }
+
+        /* LIGHTBOX */
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(6,14,9,0.96);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .lightbox.open { display: flex; }
+        .lightbox img {
+            max-width: 92vw;
+            max-height: 92vh;
+            object-fit: contain;
+            box-shadow: 0 20px 80px rgba(0,0,0,0.8);
+            cursor: default;
+            animation: none !important;
+            transform: none !important;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 1.5rem; right: 2rem;
+            font-size: 2.5rem;
+            color: var(--cream);
+            cursor: pointer;
+            opacity: 0.7;
+            background: none;
+            border: none;
+            line-height: 1;
+            transition: opacity 0.2s;
+        }
+        .lightbox-close:hover { opacity: 1; }
+
+        /* REVEAL */
+        .reveal {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .reveal.visible { opacity: 1; transform: none; }
+
+        @media (max-width: 640px) {
+            nav { padding: 1rem 1.5rem; }
+            .hero { padding: 7rem 1.5rem 3rem; }
+            .content { padding: 3rem 1.5rem; }
+            .galerie { padding: 0 1.5rem 3rem; }
+            .closing { padding: 2rem 1.5rem 4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="nav-logo">Natürlich<em>Kunst</em></a>
+        <a href="index.html#angebote" class="nav-back">Zurück</a>
+    </nav>
+
+    <div class="hero">
+        <span class="page-label">Fokus · Atemraum · Innere Mitte</span>
+        <h1>Therapeutisches <em>Bogenschiessen</em></h1>
+        <div class="hero-rule"></div>
+        <p class="hero-intro">Der Bogen als Spiegel: Im Therapeutischen Bogenschiessen werden Konzentration, Atmung und Körperhaltung zur Einheit. Jeder Pfeil, der abfliegt, ist ein Moment vollständiger Gegenwärtigkeit — ein Weg zurück zu sich selbst.</p>
+    </div>
+
+    <!-- Opener image: Platzhalterbild, bitte durch eigenes Bogenschiessen-Bild ersetzen -->
+    <!-- <img class="opener" src="bogenschiessen_opener.jpg" alt="Therapeutisches Bogenschiessen in der Natur"/> -->
+
+    <div class="content">
+        <div class="text-block reveal">
+            <p>Das Therapeutische Bogenschiessen verbindet uralte Praxis mit modernen therapeutischen Erkenntnissen. Es ist kein Sport im wettkampforientierten Sinne — es ist eine Übung in Präsenz, Selbstwahrnehmung und innerem Gleichgewicht.</p>
+            <p>Das Spannen des Bogens erfordert vollständige Aufmerksamkeit: Die Gedanken verstummen, der Atem verlangsamt sich, der Körper richtet sich aus. In diesem Zustand — ruhig, fokussiert, ganz im Moment — entfaltet das Bogenschiessen seine heilsame Wirkung.</p>
+        </div>
+
+        <div class="reveal">
+            <span class="elemente-title">Wirkbereiche</span>
+            <ul class="elemente-list">
+                <li>Stressbewältigung &amp; Nervensystemregulation</li>
+                <li>Förderung von Konzentration</li>
+                <li>Stärkung des Selbstvertrauens</li>
+                <li>Körperbewusstsein &amp; Haltung</li>
+                <li>Atemarbeit &amp; innere Ruhe</li>
+                <li>Umgang mit Frustration &amp; Geduld</li>
+                <li>Burnout-Prävention &amp; Erholung</li>
+                <li>Depressive Verstimmungen</li>
+            </ul>
+        </div>
+
+        <div class="ablauf-block reveal">
+            <h2>Wie eine Einheit aussieht</h2>
+            <p>Wir beginnen mit einer kurzen Ankommensübung in der Natur — Erdung, bewusstes Atmen, Anspannung loslassen. Dann folgt eine behutsame Einführung in Haltung, Bogen und Pfeil. Kein Druck, keine Erwartung an Treffsicherheit.</p>
+            <p>Im Zentrum steht der Prozess: Wie fühlt sich das Spannen an? Wann lasse ich los? Was passiert im Körper, wenn der Pfeil fliegt? Diese Fragen öffnen einen inneren Dialograum, der im Gespräch nach dem Schiessen weiter erkundet werden kann.</p>
+            <p>Einzel- und Gruppenangebote sind möglich — in der freien Natur, wo die Umgebung selbst zur Ressource wird.</p>
+        </div>
+
+        <div class="ablauf-block reveal">
+            <h2>Für wen eignet es sich?</h2>
+            <p>Das Therapeutische Bogenschiessen ist für Menschen jeden Alters geeignet — ob in begleitenden therapeutischen Prozessen, als ergänzende Massnahme bei Stress und Erschöpfung oder als bewusstes Achtsamkeitstraining für Menschen, die über Bewegung und Körper leichter in den Kontakt mit sich kommen.</p>
+            <p>Vorkenntnisse sind nicht erforderlich. Material wird gestellt. Was es braucht, ist die Bereitschaft, sich auf einen ruhigen, aufmerksamen Moment einzulassen.</p>
+        </div>
+
+        <span class="galerie-title reveal">Einblicke</span>
+    </div>
+
+    <!-- Galerie: Platzhalterbilder, bitte durch eigene Fotos ersetzen -->
+    <div class="galerie">
+        <div class="galerie-item galerie-item--zoomout reveal">
+            <!-- <img src="bogenschiessen_1.jpg" alt="Bogen spannen in der Natur"/> -->
+        </div>
+        <div class="galerie-item reveal">
+            <!-- <img src="bogenschiessen_2.jpg" alt="Zielen mit dem Bogen"/> -->
+        </div>
+        <div class="galerie-item galerie-item--zoomin reveal">
+            <!-- <img src="bogenschiessen_3.jpg" alt="Pfeil im Flug"/> -->
+        </div>
+        <div class="galerie-item reveal">
+            <!-- <img src="bogenschiessen_4.jpg" alt="Atemübung vor dem Schiessen"/> -->
+        </div>
+        <div class="galerie-item galerie-item--zoomout reveal">
+            <!-- <img src="bogenschiessen_5.jpg" alt="Bogenschiessen in der Waldlichtung"/> -->
+        </div>
+        <div class="galerie-item reveal">
+            <!-- <img src="bogenschiessen_6.jpg" alt="Reflexion nach dem Schiessen"/> -->
+        </div>
+    </div>
+
+    <div class="closing reveal">
+        <p>«Der Bogen lehrt uns: Nur wer loslässt, trifft — und nur wer ganz bei sich ist, kann wirklich loslassen.»</p>
+    </div>
+
+    <!-- Kontakt -->
+    <div style="max-width: 900px; margin: 0 auto 5rem; padding: 0 3rem;">
+        <div class="reveal" style="
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            align-items: center;
+            padding: 3rem;
+            background: linear-gradient(135deg, rgba(200,146,42,0.08) 0%, rgba(122,158,126,0.08) 100%);
+            border-top: 1px solid rgba(200,146,42,0.3);
+            border-bottom: 1px solid rgba(200,146,42,0.3);
+        ">
+            <div style="flex: 1; min-width: 200px;">
+                <span style="font-size: 0.7rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--amber); display: block; margin-bottom: 0.8rem;">Kontakt</span>
+                <p style="font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 300; color: var(--amber-light); line-height: 1.3;">Ich freue mich auf Ihre Nachricht.</p>
+            </div>
+            <div style="flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 0.8rem;">
+                <a href="tel:+41774738885" style="display: flex; align-items: center; gap: 0.8rem; color: var(--cream); text-decoration: none; font-size: 0.95rem; opacity: 0.85; transition: opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85">
+                    <span style="width: 36px; height: 36px; border: 1px solid rgba(200,146,42,0.4); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0;">☎</span>
+                    +41 77 473 88 85
+                </a>
+                <a href="mailto:herzenskunst@gmx.net" style="display: flex; align-items: center; gap: 0.8rem; color: var(--cream); text-decoration: none; font-size: 0.95rem; opacity: 0.85; transition: opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85">
+                    <span style="width: 36px; height: 36px; border: 1px solid rgba(200,146,42,0.4); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">✉</span>
+                    herzenskunst@gmx.net
+                </a>
+                <span style="display: flex; align-items: center; gap: 0.8rem; color: var(--cream); font-size: 0.95rem; opacity: 0.75;">
+                    <span style="width: 36px; height: 36px; border: 1px solid rgba(200,146,42,0.4); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;"><span style="filter: grayscale(1) brightness(5);">📍</span></span>
+                    8406 Winterthur
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" id="lightboxClose">&times;</button>
+        <img id="lightboxImg" src="" alt=""/>
+    </div>
+
+    <script>
+        const revealEls = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    observer.unobserve(e.target);
+                }
+            });
+        }, { threshold: 0.08 });
+        revealEls.forEach(el => observer.observe(el));
+
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+        document.querySelectorAll('.galerie-item img').forEach(img => {
+            img.addEventListener('click', () => {
+                lightboxImg.src = img.src;
+                lightboxImg.alt = img.alt;
+                lightbox.classList.add('open');
+            });
+        });
+        document.getElementById('lightboxClose').addEventListener('click', () => {
+            lightbox.classList.remove('open');
+        });
+        lightbox.addEventListener('click', e => {
+            if (e.target === lightbox) lightbox.classList.remove('open');
+        });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') lightbox.classList.remove('open');
+        });
+    </script>
+</body>
+</html>
