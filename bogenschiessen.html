@@ -781,12 +781,12 @@
             const HAZE_BACK  = { tree: '#93A184', leaf: '#A3AE88', trunk: '#A89572' };
             const HAZE_FRONT = { tree: '#7E9173', leaf: '#93A277', trunk: '#9A8460' };
             const backRow = [
-                [70, 46, 'tanne'], [118, 52, 'laub'], [268, 54, 'tanne'], [322, 48, 'laub'],
+                [268, 54, 'tanne'], [322, 48, 'laub'],
                 [372, 56, 'tanne'], [418, 46, 'laub'], [468, 52, 'tanne'], [590, 50, 'laub'],
                 [636, 56, 'tanne'], [684, 48, 'tanne'], [846, 52, 'laub'], [894, 46, 'tanne']
             ];
             const frontRow = [
-                [42, 56, 'laub'], [94, 62, 'tanne'], [240, 60, 'laub'], [296, 66, 'tanne'],
+                [240, 60, 'laub'], [296, 66, 'tanne'],
                 [344, 52, 'laub'], [396, 64, 'tanne'], [444, 58, 'tanne'], [492, 50, 'laub'],
                 [566, 58, 'tanne'], [614, 66, 'laub'], [662, 54, 'tanne'], [706, 60, 'tanne'],
                 [822, 62, 'tanne'], [870, 56, 'laub'], [910, 50, 'tanne']
@@ -878,10 +878,10 @@
                 ctx.stroke();
             });
 
-            // 3D-Tiefe: dunklere Scheibe leicht nach unten-links versetzt (Kante/Dicke) – deckend
+            // 3D-Tiefe: dunklere Scheibe leicht nach unten-rechts versetzt (Kante/Dicke) – deckend
             ctx.fillStyle = '#8A7148';
             ctx.beginPath();
-            ctx.ellipse(TX - 5, TY + 6, rxO, ryO, 0, 0, Math.PI * 2);
+            ctx.ellipse(TX + 5, TY + 6, rxO, ryO, 0, 0, Math.PI * 2);
             ctx.fill();
 
             // Deckende Grundfläche (Stroh), damit die Beine hinter der Scheibe verschwinden
