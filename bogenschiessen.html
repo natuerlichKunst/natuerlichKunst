@@ -647,12 +647,11 @@
 
     <!-- ── BOGENSPIEL ── -->
     <div class="spiel-block reveal">
-        <span class="galerie-title">Probier es aus</span>
-        <h2 class="spiel-title">Finde deinen <em>stillen Moment</em></h2>
-        <p class="spiel-intro">Bogenschiessen lehrt einen einzigen Augenblick: loslassen, wenn der Geist ruhig ist. Hier kannst du es spüren.</p>
+        <h2 class="spiel-title">Spielerisch zum Ziel</h2>
+        <p class="spiel-intro">Der stille Moment möchte von Ihnen gefunden werden</p>
+        <span class="galerie-title" style="margin-top: 0.4rem;">Probieren Sie es aus</span>
         <div class="game-wrap">
             <canvas id="archery"></canvas>
-            <div class="game-hint">Klicken &amp; halten zum Spannen &nbsp;·&nbsp; Loslassen zum Schiessen</div>
         </div>
     </div>
 
@@ -665,21 +664,32 @@
         canvas.height = H;
 
         const TX = W * 0.82, TY = H * 0.50;
-        const BX = W * 0.11, BY = H * 0.50;
-        const TOTAL = 5;
+        const BX = W * 0.12, BY = H * 0.50;
+        const TOTAL = 3;
 
+        // Tageslicht-Palette (warm, gelbliches Licht)
         const C = {
-            bg1: '#0C1810', bg2: '#1E3828',
-            cream: '#F7F2E8', creamDim: 'rgba(247,242,232,0.45)',
-            amber: '#C8963E', amberGlow: 'rgba(200,150,62,0.7)',
-            forest: '#2A4A3C', sage: '#7A9E8A',
-            danger: '#C05545'
+            skyTop: '#F4EECB',
+            skyBot: '#DBC983',
+            sun:    'rgba(255,244,192,0.55)',
+            tree:   '#3F5E3C',
+            trunk:  '#6B4A28',
+            wood:   '#6E4A20',
+            shaft:  '#43331F',
+            nock:   '#2E2416',
+            fRed:   '#C23B2C',
+            fYel:   '#E5A62A',
+            amber:  '#C8963E',
+            cream:  '#F7F2E8',
+            danger: '#B0432F',
+            ring: ['rgba(60,80,58,0.14)', 'rgba(60,80,58,0.22)', 'rgba(122,158,138,0.55)',
+                   'rgba(200,150,62,0.8)', 'rgba(192,90,60,0.9)', '#9E3B2A']
         };
 
         let st = {
             phase: 'idle', arrows: TOTAL, score: 0,
             power: 0, drawStart: null,
-            arrow: null, hit: null, hits: [],
+            arrow: null, hits: [],
             flash: 0, flashScore: 0
         };
         let wobT = 0;
@@ -690,160 +700,166 @@
         }
 
         function drawBg() {
-            const g = ctx.createLinearGradient(0, 0, W, H);
-            g.addColorStop(0, C.bg1);
-            g.addColorStop(1, C.bg2);
+            // Tageslicht-Verlauf
+            const g = ctx.createLinearGradient(0, 0, 0, H);
+            g.addColorStop(0, C.skyTop);
+            g.addColorStop(1, C.skyBot);
             ctx.fillStyle = g;
             ctx.fillRect(0, 0, W, H);
 
-            // Subtle ground fog
-            const fog = ctx.createLinearGradient(0, H * 0.7, 0, H);
-            fog.addColorStop(0, 'transparent');
-            fog.addColorStop(1, 'rgba(8,16,12,0.4)');
-            ctx.fillStyle = fog;
-            ctx.fillRect(0, H * 0.7, W, H * 0.3);
+            // Weiches Sonnenlicht oben rechts
+            const sun = ctx.createRadialGradient(W * 0.72, H * 0.12, 10, W * 0.72, H * 0.12, 270);
+            sun.addColorStop(0, C.sun);
+            sun.addColorStop(1, 'rgba(255,244,192,0)');
+            ctx.fillStyle = sun;
+            ctx.fillRect(0, 0, W, H);
 
-            // Tree silhouettes
-            ctx.fillStyle = 'rgba(6,14,10,0.7)';
-            const trees = [
-                [60, H, 90], [160, H, 70], [250, H, 100], [380, H, 65],
-                [460, H, 85], [580, H, 75], [680, H, 95], [780, H, 68],
-                [860, H, 80], [940, H, 60]
+            // Stilisierte Tannen am unteren Rand (Spitze oben), Bereich unter dem Bogen bleibt frei
+            const firs = [
+                [250, 96], [332, 72], [430, 108], [520, 80],
+                [612, 98], [702, 76], [792, 104], [864, 84]
             ];
-            trees.forEach(([x, y, h]) => {
+            firs.forEach(([x, h]) => drawFir(x, H, h));
+        }
+
+        function drawFir(cx, baseY, h) {
+            // Stamm
+            ctx.fillStyle = C.trunk;
+            ctx.fillRect(cx - h * 0.03, baseY - h * 0.13, h * 0.06, h * 0.13);
+            // Drei nach oben spitze Etagen
+            ctx.fillStyle = C.tree;
+            for (let i = 0; i < 3; i++) {
+                const ty = baseY - h * 0.10 - (h * 0.28) * i;
+                const tw = (h * 0.26) * (1 - i * 0.2);
+                const th = h * 0.42;
                 ctx.beginPath();
-                ctx.moveTo(x, y);
-                ctx.lineTo(x - h * 0.28, y - h);
-                ctx.lineTo(x + h * 0.28, y - h);
+                ctx.moveTo(cx, ty - th);
+                ctx.lineTo(cx - tw, ty);
+                ctx.lineTo(cx + tw, ty);
                 ctx.closePath();
                 ctx.fill();
-            });
+            }
         }
 
         function drawTarget() {
             const rings = [
-                { r: 70, fill: 'rgba(247,242,232,0.05)' },
-                { r: 56, fill: 'rgba(247,242,232,0.08)' },
-                { r: 42, fill: 'rgba(122,158,138,0.18)' },
-                { r: 28, fill: 'rgba(200,150,62,0.28)' },
-                { r: 15, fill: 'rgba(200,150,62,0.55)' },
-                { r: 6,  fill: C.amber }
+                { r: 68, c: C.ring[0] },
+                { r: 54, c: C.ring[1] },
+                { r: 41, c: C.ring[2] },
+                { r: 27, c: C.ring[3] },
+                { r: 14, c: C.ring[4] },
+                { r: 6,  c: C.ring[5] }
             ];
-
             rings.forEach(ring => {
                 ctx.beginPath();
                 ctx.arc(TX, TY, ring.r, 0, Math.PI * 2);
-                ctx.fillStyle = ring.fill;
+                ctx.fillStyle = ring.c;
                 ctx.fill();
-                ctx.strokeStyle = 'rgba(247,242,232,0.07)';
+                ctx.strokeStyle = 'rgba(46,36,22,0.14)';
                 ctx.lineWidth = 0.8;
                 ctx.stroke();
             });
 
-            // Crosshair
-            ctx.strokeStyle = 'rgba(247,242,232,0.06)';
-            ctx.lineWidth = 0.5;
-            ctx.beginPath();
-            ctx.moveTo(TX - 78, TY); ctx.lineTo(TX + 78, TY);
-            ctx.moveTo(TX, TY - 78); ctx.lineTo(TX, TY + 78);
-            ctx.stroke();
-
-            // Previous hits
-            st.hits.forEach(h => {
-                ctx.beginPath();
-                ctx.arc(TX + h.dx, TY + h.dy, 2.5, 0, Math.PI * 2);
-                ctx.fillStyle = C.amberGlow;
-                ctx.fill();
-            });
+            // Steckende Pfeile (Ende sichtbar) aus vorherigen Treffern
+            st.hits.forEach(h => drawStuckArrow(TX + h.dx, TY + h.dy));
         }
 
-        function drawBow() {
-            const pull = st.phase === 'drawing' ? st.power * 0.55 : 0;
-            const wb = (st.phase === 'drawing' || st.phase === 'idle') ? wobble() : 0;
-
-            // Bow body
-            ctx.strokeStyle = C.amber;
-            ctx.lineWidth = 2.8;
-            ctx.lineCap = 'round';
-            ctx.beginPath();
-            ctx.moveTo(BX + 6, BY - 58);
-            ctx.quadraticCurveTo(BX - 18 + pull * 32, BY, BX + 6, BY + 58);
-            ctx.stroke();
-
-            // String
-            const strX = BX - pull * 38;
-            ctx.strokeStyle = 'rgba(247,242,232,0.4)';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(BX + 6, BY - 58);
-            ctx.lineTo(strX, BY + wb);
-            ctx.lineTo(BX + 6, BY + 58);
-            ctx.stroke();
-
-            // Arrow on string
-            if (st.phase === 'idle' || st.phase === 'drawing') {
-                const aX = strX + 100;
-                const aY = BY + wb;
-                drawArrow(strX, BY + wb, aX, aY);
-            }
+        // Pfeil steckt: Spitze im Ziel, Schaft + Federn ragen nach oben-links (zum Schützen) heraus
+        function drawStuckArrow(px, py) {
+            const ang = -Math.PI * 0.78;
+            const len = 30;
+            const bx = px + Math.cos(ang) * len;
+            const by = py + Math.sin(ang) * len;
+            drawArrow(bx, by, px, py);
         }
 
+        // Pfeil von (x1,y1)=hinten/Nocke bis (x2,y2)=Spitze; Federn hinten
         function drawArrow(x1, y1, x2, y2) {
             const angle = Math.atan2(y2 - y1, x2 - x1);
+            const len = Math.hypot(x2 - x1, y2 - y1);
             ctx.save();
             ctx.translate(x1, y1);
             ctx.rotate(angle);
-            const len = Math.sqrt((x2-x1)**2 + (y2-y1)**2);
 
-            ctx.strokeStyle = C.cream;
-            ctx.lineWidth = 1.5;
+            // Schaft
+            ctx.strokeStyle = C.shaft;
+            ctx.lineWidth = 2;
             ctx.lineCap = 'round';
             ctx.beginPath();
             ctx.moveTo(0, 0);
             ctx.lineTo(len, 0);
             ctx.stroke();
 
-            // Tip
-            ctx.strokeStyle = C.amber;
-            ctx.lineWidth = 2;
+            // Spitze vorne
+            ctx.fillStyle = C.nock;
             ctx.beginPath();
-            ctx.moveTo(len - 10, -4);
-            ctx.lineTo(len, 0);
-            ctx.lineTo(len - 10, 4);
+            ctx.moveTo(len, 0);
+            ctx.lineTo(len - 11, -4.5);
+            ctx.lineTo(len - 11, 4.5);
+            ctx.closePath();
+            ctx.fill();
+
+            // Federn hinten (rot/gelb, wie auf dem Foto)
+            ctx.fillStyle = C.fYel;
+            ctx.beginPath(); ctx.moveTo(2, 0); ctx.lineTo(-14, -7.5); ctx.lineTo(-4, -1); ctx.closePath(); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(2, 0); ctx.lineTo(-14, 7.5);  ctx.lineTo(-4, 1);  ctx.closePath(); ctx.fill();
+            ctx.fillStyle = C.fRed;
+            ctx.beginPath(); ctx.moveTo(4, 0); ctx.lineTo(-16, 0); ctx.lineTo(-4, -2.4); ctx.lineTo(-4, 2.4); ctx.closePath(); ctx.fill();
+
+            ctx.restore();
+        }
+
+        function drawBow() {
+            const pull = st.phase === 'drawing' ? st.power * 0.55 : 0;
+            const wb = (st.phase === 'drawing' || st.phase === 'idle') ? wobble() : 0;
+
+            // Bogen (Holz) rechts, wölbt sich zum Ziel; Sehne links
+            ctx.strokeStyle = C.wood;
+            ctx.lineWidth = 3.4;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(BX, BY - 58);
+            ctx.quadraticCurveTo(BX + 32 - pull * 12, BY, BX, BY + 58);
             ctx.stroke();
 
-            // Fletching
-            ctx.strokeStyle = C.sage;
-            ctx.lineWidth = 1.2;
+            // Sehne links (Nocke wird nach links gezogen)
+            const strX = BX - pull * 44;
+            ctx.strokeStyle = 'rgba(46,36,22,0.6)';
+            ctx.lineWidth = 1.3;
             ctx.beginPath();
-            ctx.moveTo(8, -5); ctx.lineTo(0, 0); ctx.lineTo(8, 5);
+            ctx.moveTo(BX, BY - 58);
+            ctx.lineTo(strX, BY + wb);
+            ctx.lineTo(BX, BY + 58);
             ctx.stroke();
-            ctx.restore();
+
+            // Aufgelegter Pfeil, zeigt nach rechts (zum Ziel)
+            if (st.phase === 'idle' || st.phase === 'drawing') {
+                drawArrow(strX, BY + wb, strX + 112, BY + wb);
+            }
         }
 
         function drawFlyingArrow() {
             if (!st.arrow) return;
             const { x, y, vx, vy } = st.arrow;
             const angle = Math.atan2(vy, vx);
-            const len = 80;
-            drawArrow(x - Math.cos(angle)*len*0.6, y - Math.sin(angle)*len*0.6,
-                      x + Math.cos(angle)*len*0.4, y + Math.sin(angle)*len*0.4);
+            const len = 76;
+            drawArrow(x - Math.cos(angle) * len * 0.7, y - Math.sin(angle) * len * 0.7,
+                      x + Math.cos(angle) * len * 0.3, y + Math.sin(angle) * len * 0.3);
         }
 
         function drawPowerBar() {
             if (st.phase !== 'drawing') return;
-            const bW = 160, bH = 5;
-            const bX = W/2 - bW/2, bY = H - 28;
+            const bW = 130, bH = 6;
+            const bX = 24, bY = H - 24;   // unten links, unter dem Bogen
 
-            ctx.fillStyle = 'rgba(247,242,232,0.08)';
+            ctx.fillStyle = 'rgba(46,36,22,0.15)';
             ctx.fillRect(bX, bY, bW, bH);
 
             const p = st.power;
-            ctx.fillStyle = p < 0.4 ? 'rgba(200,150,62,0.5)' : p < 0.85 ? C.amber : C.danger;
+            ctx.fillStyle = p < 0.4 ? 'rgba(200,150,62,0.7)' : p < 0.85 ? C.amber : C.danger;
             ctx.fillRect(bX, bY, bW * p, bH);
 
-            // Sweet zone markers
-            ctx.strokeStyle = 'rgba(247,242,232,0.3)';
+            ctx.strokeStyle = 'rgba(46,36,22,0.4)';
             ctx.lineWidth = 1;
             [0.55, 0.85].forEach(pos => {
                 ctx.beginPath();
@@ -852,81 +868,67 @@
                 ctx.stroke();
             });
 
-            ctx.fillStyle = 'rgba(247,242,232,0.28)';
-            ctx.font = '600 9px Raleway, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('ZUGKRAFT', W/2, bY - 7);
+            ctx.fillStyle = 'rgba(46,36,22,0.62)';
+            ctx.font = '600 9px Jost, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('ZUGKRAFT', bX, bY - 6);
         }
 
         function drawHUD() {
-            // Arrow icons
+            // Verbleibende Pfeile — oben links, über dem Bogen
             for (let i = 0; i < TOTAL; i++) {
-                const ax = 28 + i * 18;
-                const ay = H - 22;
-                ctx.strokeStyle = i < st.arrows ? C.amber : 'rgba(247,242,232,0.12)';
-                ctx.lineWidth = i < st.arrows ? 1.5 : 1;
+                const ax = 26 + i * 20;
+                const ay = 26;
+                const on = i < st.arrows;
+                ctx.strokeStyle = on ? '#2E2416' : 'rgba(46,36,22,0.2)';
+                ctx.lineWidth = on ? 1.8 : 1;
                 ctx.lineCap = 'round';
                 ctx.beginPath();
-                ctx.moveTo(ax, ay + 7); ctx.lineTo(ax, ay - 7);
-                ctx.moveTo(ax - 3, ay - 3); ctx.lineTo(ax, ay - 7); ctx.lineTo(ax + 3, ay - 3);
+                ctx.moveTo(ax, ay + 8); ctx.lineTo(ax, ay - 8);
+                ctx.moveTo(ax - 3.5, ay - 4); ctx.lineTo(ax, ay - 8); ctx.lineTo(ax + 3.5, ay - 4);
                 ctx.stroke();
             }
-
-            // Score
-            ctx.fillStyle = 'rgba(247,242,232,0.4)';
-            ctx.font = '300 14px Cormorant Garamond, serif';
-            ctx.textAlign = 'right';
-            ctx.fillText(st.score + ' Punkte', W - 24, H - 17);
         }
 
         function drawFlashScore() {
-            if (st.flash <= 0 || !st.hit) return;
+            if (st.flash <= 0) return;
             const alpha = Math.min(1, st.flash * 2);
             const rise = (1 - st.flash) * 18;
-            ctx.fillStyle = `rgba(200,150,62,${alpha})`;
-            ctx.font = `300 ${44 + st.flash * 14}px Cormorant Garamond, serif`;
+            ctx.fillStyle = `rgba(158,59,42,${alpha})`;
+            ctx.font = `300 ${40 + st.flash * 12}px Cormorant Garamond, serif`;
             ctx.textAlign = 'center';
             const label = st.flashScore === 10 ? 'Volltreffer!' :
                           st.flashScore === 0 ? 'Daneben.' : `+${st.flashScore}`;
-            ctx.fillText(label, W/2, H/2 - 30 - rise);
-        }
-
-        function drawIdleHint() {
-            if (st.phase !== 'idle') return;
-            ctx.fillStyle = 'rgba(247,242,232,0.22)';
-            ctx.font = '600 10px Raleway, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('KLICKEN · HALTEN · LOSLASSEN', W/2, H - 12);
+            ctx.fillText(label, W / 2, H * 0.32 - rise);
         }
 
         function drawGameOver() {
-            ctx.fillStyle = 'rgba(10,18,14,0.88)';
+            ctx.fillStyle = 'rgba(40,32,18,0.85)';
             ctx.fillRect(0, 0, W, H);
 
             ctx.textAlign = 'center';
             ctx.fillStyle = C.cream;
             ctx.font = '300 80px Cormorant Garamond, serif';
-            ctx.fillText(st.score, W/2, H/2 - 15);
+            ctx.fillText(st.score, W / 2, H / 2 - 15);
 
             ctx.fillStyle = C.amber;
-            ctx.font = '600 11px Raleway, sans-serif';
-            ctx.fillText('PUNKTE', W/2, H/2 + 12);
+            ctx.font = '600 11px Jost, sans-serif';
+            ctx.fillText('PUNKTE', W / 2, H / 2 + 12);
 
-            const msg = st.score >= 42 ? 'Meisterschütze.' :
-                        st.score >= 28 ? 'Du findest die Stille.' :
-                        st.score >= 14 ? 'Der Weg ist sichtbar.' :
+            const msg = st.score >= 25 ? 'Meisterschütze.' :
+                        st.score >= 16 ? 'Du findest die Stille.' :
+                        st.score >= 8  ? 'Der Weg ist sichtbar.' :
                         'Übung ist der Weg.';
-            ctx.fillStyle = 'rgba(247,242,232,0.5)';
+            ctx.fillStyle = 'rgba(247,242,232,0.55)';
             ctx.font = '300 20px Cormorant Garamond, serif';
-            ctx.fillText(msg, W/2, H/2 + 50);
+            ctx.fillText(msg, W / 2, H / 2 + 50);
 
-            // Restart
-            ctx.strokeStyle = 'rgba(200,150,62,0.45)';
+            ctx.strokeStyle = 'rgba(200,150,62,0.5)';
             ctx.lineWidth = 1;
-            ctx.strokeRect(W/2 - 75, H/2 + 78, 150, 36);
-            ctx.fillStyle = 'rgba(247,242,232,0.45)';
-            ctx.font = '600 10px Raleway, sans-serif';
-            ctx.fillText('NOCHMAL', W/2, H/2 + 101);
+            ctx.strokeRect(W / 2 - 75, H / 2 + 78, 150, 36);
+            ctx.fillStyle = 'rgba(247,242,232,0.5)';
+            ctx.font = '600 10px Jost, sans-serif';
+            ctx.fillText('NOCHMAL', W / 2, H / 2 + 101);
         }
 
         function update() {
@@ -944,17 +946,19 @@
                 if (st.arrow.x >= TX - 72) {
                     const dx = st.arrow.x - TX;
                     const dy = st.arrow.y - TY;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
-                    const sc = dist <= 6 ? 10 : dist <= 15 ? 9 : dist <= 28 ? 7 :
-                               dist <= 42 ? 5 : dist <= 56 ? 3 : dist <= 70 ? 1 : 0;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const sc = dist <= 6 ? 10 : dist <= 14 ? 9 : dist <= 27 ? 7 :
+                               dist <= 41 ? 5 : dist <= 54 ? 3 : dist <= 68 ? 1 : 0;
 
                     st.score += sc;
                     st.flashScore = sc;
                     st.flash = 1.4;
-                    st.hits.push({
-                        dx: Math.max(-68, Math.min(68, dx)),
-                        dy: Math.max(-68, Math.min(68, dy))
-                    });
+                    if (sc > 0) {
+                        st.hits.push({
+                            dx: Math.max(-66, Math.min(66, dx)),
+                            dy: Math.max(-66, Math.min(66, dy))
+                        });
+                    }
                     st.arrow = null;
                     st.phase = st.arrows > 0 ? 'hit' : 'over';
                     if (st.phase === 'hit') setTimeout(() => { if (st.phase === 'hit') st.phase = 'idle'; }, 1100);
@@ -981,20 +985,19 @@
             drawHUD();
             drawPowerBar();
             drawFlashScore();
-            drawIdleHint();
             if (st.phase === 'gameover') drawGameOver();
         }
 
         function reset() {
             st = { phase: 'idle', arrows: TOTAL, score: 0, power: 0,
-                   drawStart: null, arrow: null, hit: null, hits: [], flash: 0, flashScore: 0 };
+                   drawStart: null, arrow: null, hits: [], flash: 0, flashScore: 0 };
         }
 
         function shoot() {
             if (st.phase !== 'drawing') return;
             const wb = wobble();
             const sp = st.power * 16 + 5;
-            const sx = BX - st.power * 38 + 100;
+            const sx = BX + 80;
             const sy = BY + wb;
             const angle = Math.atan2((TY + wb * (1.4 - st.power)) - sy, TX - sx);
             st.arrow = { x: sx, y: sy, vx: Math.cos(angle) * sp, vy: Math.sin(angle) * sp };
