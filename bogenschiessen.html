@@ -656,13 +656,14 @@
                     <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
                 </svg>
             </button>
+            <span style="font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(200,146,42,0.7);">Sommerwiese</span>
             <audio id="naturAudio" loop preload="none" src="audio/natur-konzentration.m4a"></audio>
         </div>
         <div class="game-wrap">
             <canvas id="archery"></canvas>
         </div>
         <div class="spiel-ausblick">
-            <p class="spiel-intro"><strong class="ausblick">Ausblick:</strong> Ich freue mich schon darauf, Ihnen alles in Ruhe in Echt zeigen zu können. Einen starken Bogen zum ersten Mal in der Hand zu halten ist etwas ganz besonderes. Es verbindet uns auch mit unseren Vorfahren, die noch von der Jagd lebten. Lassen Sie sich überraschen, was sich bei Ihnen zeigen und was geschehen mag.</p>
+            <p class="spiel-intro"><strong class="ausblick">Ausblick:</strong> Ich freue mich schon darauf, Ihnen alles in Ruhe in Echt zeigen zu können! Einen starken Bogen zum ersten Mal in der Hand zu halten ist etwas ganz Besonderes. Es verbindet uns auch mit unseren Vorfahren, die noch von der Jagd lebten. Lassen Sie sich überraschen, was sich bei Ihnen zeigen und was geschehen mag.</p>
         </div>
     </div>
 
@@ -774,15 +775,24 @@
             ctx.fillStyle = sun;
             ctx.fillRect(0, 0, W, H);
 
-            // Baumlinie am Horizont – klein und hazy, damit Bogen und Scheibe im Vordergrund bleiben.
+            // Waldsaum am Horizont – klein und hazy, damit Bogen und Scheibe im Vordergrund bleiben.
+            // Zwei Reihen: hintere Reihe blasser, vordere Reihe überlappt sie -> dichter Waldeindruck.
             const HZ = H * 0.62;
-            const HAZE = { tree: '#7E9173', leaf: '#93A277', trunk: '#9A8460' };
-            const trees = [
-                [240, 50, 'laub'], [300, 60, 'tanne'], [345, 46, 'laub'], [392, 58, 'tanne'],
-                [440, 50, 'tanne'], [560, 54, 'laub'], [612, 60, 'tanne'], [656, 46, 'tanne'],
-                [820, 56, 'laub'], [872, 50, 'tanne']
+            const HAZE_BACK  = { tree: '#93A184', leaf: '#A3AE88', trunk: '#A89572' };
+            const HAZE_FRONT = { tree: '#7E9173', leaf: '#93A277', trunk: '#9A8460' };
+            const backRow = [
+                [70, 46, 'tanne'], [118, 52, 'laub'], [268, 54, 'tanne'], [322, 48, 'laub'],
+                [372, 56, 'tanne'], [418, 46, 'laub'], [468, 52, 'tanne'], [590, 50, 'laub'],
+                [636, 56, 'tanne'], [684, 48, 'tanne'], [846, 52, 'laub'], [894, 46, 'tanne']
             ];
-            trees.forEach(([x, h, t]) => t === 'laub' ? drawLeafTree(x, HZ, h, HAZE) : drawFir(x, HZ, h, HAZE));
+            const frontRow = [
+                [42, 56, 'laub'], [94, 62, 'tanne'], [240, 60, 'laub'], [296, 66, 'tanne'],
+                [344, 52, 'laub'], [396, 64, 'tanne'], [444, 58, 'tanne'], [492, 50, 'laub'],
+                [566, 58, 'tanne'], [614, 66, 'laub'], [662, 54, 'tanne'], [706, 60, 'tanne'],
+                [822, 62, 'tanne'], [870, 56, 'laub'], [910, 50, 'tanne']
+            ];
+            backRow.forEach(([x, h, t]) => t === 'laub' ? drawLeafTree(x, HZ, h, HAZE_BACK) : drawFir(x, HZ, h, HAZE_BACK));
+            frontRow.forEach(([x, h, t]) => t === 'laub' ? drawLeafTree(x, HZ, h, HAZE_FRONT) : drawFir(x, HZ, h, HAZE_FRONT));
 
             // Wiese/Boden ab dem Horizont (Vordergrundebene, auf der Bogen und Scheibe stehen)
             const gr = ctx.createLinearGradient(0, HZ - 6, 0, H);
@@ -868,10 +878,16 @@
                 ctx.stroke();
             });
 
-            // 3D-Tiefe: dunklere Scheibe leicht nach unten-links versetzt (Kante/Dicke)
-            ctx.fillStyle = 'rgba(58,44,24,0.45)';
+            // 3D-Tiefe: dunklere Scheibe leicht nach unten-links versetzt (Kante/Dicke) – deckend
+            ctx.fillStyle = '#8A7148';
             ctx.beginPath();
             ctx.ellipse(TX - 5, TY + 6, rxO, ryO, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Deckende Grundfläche (Stroh), damit die Beine hinter der Scheibe verschwinden
+            ctx.fillStyle = '#EDE4BC';
+            ctx.beginPath();
+            ctx.ellipse(TX, TY, rxO, ryO, 0, 0, Math.PI * 2);
             ctx.fill();
 
             // Ringe als Ellipsen
