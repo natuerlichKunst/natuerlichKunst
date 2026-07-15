@@ -717,8 +717,10 @@
 
             // Stilisierte Tannen am unteren Rand (Spitze oben), Bereich unter dem Bogen bleibt frei
             const firs = [
-                [250, 96], [332, 72], [430, 108], [520, 80],
-                [612, 98], [702, 76], [792, 104], [864, 84]
+                [250, 96],                             // links – einzeln
+                [440, 108], [478, 74], [512, 96],      // Mitte – dichte Gruppe (überlappend)
+                [560, 80], [600, 76],                  // Mitte – leicht abgesetzt
+                [792, 104], [864, 84]                  // rechts – Paar
             ];
             firs.forEach(([x, h]) => drawFir(x, H, h));
         }
@@ -895,12 +897,12 @@
             if (st.flash <= 0) return;
             const alpha = Math.min(1, st.flash * 2);
             const rise = (1 - st.flash) * 18;
+            // Nur ein positiver Zuruf bei einem Zentrumstreffer – keine Punkte, kein "Daneben"
+            if (st.flashScore !== 10) return;
             ctx.fillStyle = `rgba(158,59,42,${alpha})`;
             ctx.font = `300 ${40 + st.flash * 12}px Cormorant Garamond, serif`;
             ctx.textAlign = 'center';
-            const label = st.flashScore === 10 ? 'Volltreffer!' :
-                          st.flashScore === 0 ? 'Daneben.' : `+${st.flashScore}`;
-            ctx.fillText(label, W / 2, H * 0.32 - rise);
+            ctx.fillText('Volltreffer!', W / 2, H * 0.32 - rise);
         }
 
         function drawGameOver() {
@@ -909,20 +911,9 @@
 
             ctx.textAlign = 'center';
             ctx.fillStyle = C.cream;
-            ctx.font = '300 80px Cormorant Garamond, serif';
-            ctx.fillText(st.score, W / 2, H / 2 - 15);
-
-            ctx.fillStyle = C.amber;
-            ctx.font = '600 11px Jost, sans-serif';
-            ctx.fillText('PUNKTE', W / 2, H / 2 + 12);
-
-            const msg = st.score >= 25 ? 'Meisterschütze.' :
-                        st.score >= 16 ? 'Du findest die Stille.' :
-                        st.score >= 8  ? 'Der Weg ist sichtbar.' :
-                        'Übung ist der Weg.';
-            ctx.fillStyle = 'rgba(247,242,232,0.55)';
-            ctx.font = '300 20px Cormorant Garamond, serif';
-            ctx.fillText(msg, W / 2, H / 2 + 50);
+            ctx.font = '300 30px Cormorant Garamond, serif';
+            ctx.fillText('Übung ist der Weg.', W / 2, H / 2 - 20);
+            ctx.fillText('Ich freue mich auf Sie auf dem Feld.', W / 2, H / 2 + 18);
 
             ctx.strokeStyle = 'rgba(200,150,62,0.5)';
             ctx.lineWidth = 1;
