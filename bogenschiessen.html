@@ -617,10 +617,10 @@
         <span class="galerie-title">Bogenschiessen</span>
         <h2 class="spiel-title">Spielerisch lernen. <em>Probieren Sie es aus.</em></h2>
         <p class="spiel-intro">Dazu eine kleine Imaginationsübung: Stellen Sie sich folgendes vor: Sie stehen auf der Wiese und hören einigen Vögeln beim singen zu. Der morgendliche Wind streicht sanft über Ihre Arme und Ihr Gesicht. Sie nehmen den Bogen hoch mit eingelegtem Pfeil, Sie spannen und spüren die Sehne an Ihren Fingern. Dann lassen Sie los.</p>
-        <p class="spiel-intro">Ich freue mich schon darauf, Ihnen alles in Ruhe in Echt zeigen zu können. Einen starken Bogen zum ersten Mal in der Hand zu halten ist etwas ganz besonderes. Es verbindet uns auch mit unseren Vorfahren, die noch von der Jagd lebten. Lassen Sie sich überraschen, was sich bei Ihnen zeigen und was geschehen mag.</p>
         <div class="game-wrap">
             <canvas id="archery"></canvas>
         </div>
+        <p class="spiel-intro">Ich freue mich schon darauf, Ihnen alles in Ruhe in Echt zeigen zu können. Einen starken Bogen zum ersten Mal in der Hand zu halten ist etwas ganz besonderes. Es verbindet uns auch mit unseren Vorfahren, die noch von der Jagd lebten. Lassen Sie sich überraschen, was sich bei Ihnen zeigen und was geschehen mag.</p>
     </div>
 
     <script>
@@ -641,6 +641,7 @@
             skyBot: '#DBC983',
             sun:    'rgba(255,244,192,0.55)',
             tree:   '#3F5E3C',
+            leaf:   '#5C7C3E',
             trunk:  '#6B4A28',
             wood:   '#6E4A20',
             shaft:  '#43331F',
@@ -682,14 +683,15 @@
             ctx.fillStyle = sun;
             ctx.fillRect(0, 0, W, H);
 
-            // Stilisierte Tannen am unteren Rand (Spitze oben), Bereich unter dem Bogen bleibt frei
-            const firs = [
-                [250, 96],                             // links – einzeln
-                [440, 108], [478, 74], [512, 96],      // Mitte – dichte Gruppe (überlappend)
-                [560, 80], [600, 76],                  // Mitte – leicht abgesetzt
-                [792, 104], [864, 84]                  // rechts – Paar
+            // Stilisierte Bäume am unteren Rand (gemischter Wald: Tannen + Laubbäume),
+            // Bereich unter dem Bogen bleibt frei. Typ 'laub' = Laubbaum, sonst Tanne.
+            const trees = [
+                [250, 96, 'laub'],                             // links – einzeln (Laubbaum)
+                [440, 108, 'tanne'], [478, 74, 'laub'], [512, 96, 'tanne'],   // Mitte – dichte Gruppe
+                [560, 80, 'laub'], [600, 76, 'tanne'],         // Mitte – leicht abgesetzt
+                [792, 104, 'tanne'], [864, 84, 'laub']         // rechts – Paar
             ];
-            firs.forEach(([x, h]) => drawFir(x, H, h));
+            trees.forEach(([x, h, t]) => t === 'laub' ? drawLeafTree(x, H, h) : drawFir(x, H, h));
         }
 
         function drawFir(cx, baseY, h) {
@@ -709,6 +711,29 @@
                 ctx.closePath();
                 ctx.fill();
             }
+        }
+
+        // Stilisierter Laubbaum: schlanker Stamm + runde Krone aus überlappenden Kreisen
+        function drawLeafTree(cx, baseY, h) {
+            const trunkH = h * 0.30;
+            ctx.fillStyle = C.trunk;
+            ctx.fillRect(cx - h * 0.028, baseY - trunkH, h * 0.056, trunkH);
+
+            ctx.fillStyle = C.leaf;
+            const cy = baseY - trunkH - h * 0.22;
+            const r = h * 0.28;
+            const blobs = [
+                [0, 0, r],
+                [-r * 0.72, r * 0.28, r * 0.70],
+                [r * 0.72, r * 0.28, r * 0.70],
+                [-r * 0.38, -r * 0.52, r * 0.60],
+                [r * 0.38, -r * 0.52, r * 0.60]
+            ];
+            blobs.forEach(([dx, dy, rr]) => {
+                ctx.beginPath();
+                ctx.arc(cx + dx, cy + dy, rr, 0, Math.PI * 2);
+                ctx.fill();
+            });
         }
 
         function drawTarget() {
