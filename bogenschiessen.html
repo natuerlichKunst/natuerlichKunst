@@ -664,7 +664,7 @@
         let wobT = 0;
 
         function wobble() {
-            const amp = st.phase === 'drawing' ? Math.max(6, 26 - st.power * 22) : 0;
+            const amp = st.phase === 'drawing' ? Math.max(4, 20 - st.power * 16) : 0;
             return Math.sin(wobT * 2.2) * amp * 0.6 + Math.sin(wobT * 3.7) * amp * 0.4;
         }
 
@@ -687,8 +687,8 @@
             // Bereich unter dem Bogen bleibt frei. Typ 'laub' = Laubbaum, sonst Tanne.
             const trees = [
                 [250, 96, 'laub'],                             // links – einzeln (Laubbaum)
-                [440, 108, 'tanne'], [478, 74, 'laub'], [512, 96, 'tanne'],   // Mitte – dichte Gruppe
-                [560, 80, 'laub'], [600, 76, 'tanne'],         // Mitte – leicht abgesetzt
+                [440, 108, 'tanne'], [478, 104, 'laub'], [512, 96, 'tanne'],   // Mitte – dichte Gruppe (grosser Laubbaum)
+                [560, 106, 'laub'], [600, 76, 'tanne'],        // Mitte – leicht abgesetzt (grosser Laubbaum)
                 [792, 104, 'tanne'], [864, 84, 'laub']         // rechts – Paar
             ];
             trees.forEach(([x, h, t]) => t === 'laub' ? drawLeafTree(x, H, h) : drawFir(x, H, h));
@@ -925,9 +925,9 @@
             if (st.phase === 'flying' && st.arrow) {
                 st.arrow.x += st.arrow.vx;
                 st.arrow.y += st.arrow.vy;
-                st.arrow.vy += 0.1;
+                st.arrow.vy += 0.06;
 
-                if (st.arrow.x >= TX - 72) {
+                if (st.arrow.x >= TX) {
                     const dx = st.arrow.x - TX;
                     const dy = st.arrow.y - TY;
                     const dist = Math.sqrt(dx * dx + dy * dy);
@@ -980,11 +980,16 @@
         function shoot() {
             if (st.phase !== 'drawing') return;
             const wb = wobble();
-            const sp = st.power * 16 + 5;
+            const g = 0.06;                     // muss zur Schwerkraft im update() passen
             const sx = BX + 80;
-            const sy = BY + wb;
-            const angle = Math.atan2((TY + wb * (1.4 - st.power)) - sy, TX - sx);
-            st.arrow = { x: sx, y: sy, vx: Math.cos(angle) * sp, vy: Math.sin(angle) * sp };
+            const sy = BY;                      // feste Abschusshöhe
+            const vx = st.power * 8 + 12;       // 12..20 – immer genug, um die Scheibe zu erreichen
+            const T = (TX - sx) / vx;           // Flugzeit bis zur Zielmitte
+            // Auf die Zielmitte zielen (mit kleinem Wackel-Fehler); Schwerkraft wird rausgerechnet,
+            // damit der Pfeil zuverlässig in der Scheibe landet.
+            const targetY = TY + wb;
+            const vy = (targetY - sy - 0.5 * g * T * T) / T;
+            st.arrow = { x: sx, y: sy, vx: vx, vy: vy };
             st.arrows--;
             st.phase = 'flying';
         }
