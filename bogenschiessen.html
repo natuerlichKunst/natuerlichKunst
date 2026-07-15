@@ -848,6 +848,7 @@
         }
 
         const TSX = 0.86;   // horizontale Stauchung -> leicht hochovale Scheibe (3D-Anmutung)
+        const GY = 398;     // Bodenhöhe: hier bleiben Fehlschüsse in der Wiese stecken
 
         function drawTarget() {
             const rings = [
@@ -903,6 +904,13 @@
 
             // Steckende Pfeile (Ende sichtbar) aus vorherigen Treffern
             st.hits.forEach(h => drawStuckArrow(TX + h.dx * TSX, TY + h.dy));
+
+            // Fehlschüsse: Pfeile stecken im Einschlagwinkel in der Wiese
+            st.misses.forEach(m => {
+                const len = 30;
+                const tipX = m.x, tipY = GY + 4;
+                drawArrow(tipX - Math.cos(m.ang) * len, tipY - Math.sin(m.ang) * len, tipX, tipY);
+            });
         }
 
         // Pfeil steckt: Spitze im Ziel, Schaft + Federn ragen nach oben-links (zum Schützen) heraus
@@ -1075,23 +1083,38 @@
                 st.arrow.y += st.arrow.vy;
                 st.arrow.vy += 0.12;
 
-                if (st.arrow.x >= TX) {
+                // Treffer-Prüfung an der Scheibe (nur einmal); Fehlschüsse fliegen weiter
+                if (!st.arrow.checked && st.arrow.x >= TX) {
+                    st.arrow.checked = true;
                     const dx = (st.arrow.x - st.arrow.vx * 0.5) - TX;
                     const dy = (st.arrow.y - st.arrow.vy * 0.5) - TY;
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     const sc = dist <= 6 ? 10 : dist <= 14 ? 9 : dist <= 27 ? 7 :
                                dist <= 41 ? 5 : dist <= 54 ? 3 : dist <= 68 ? 1 : 0;
 
-                    st.score += sc;
-                    st.flashScore = sc;
-                    st.flash = 1.4;
                     if (sc > 0) {
+                        st.score += sc;
+                        st.flashScore = sc;
+                        st.flash = 1.4;
                         sndHit();
                         st.hits.push({
                             dx: Math.max(-66, Math.min(66, dx)),
                             dy: Math.max(-66, Math.min(66, dy))
                         });
+                        st.arrow = null;
+                        st.phase = st.arrows > 0 ? 'hit' : 'over';
+                        if (st.phase === 'hit') setTimeout(() => { if (st.phase === 'hit') st.phase = 'idle'; }, 1100);
+                        if (st.phase === 'over') setTimeout(() => { st.phase = 'gameover'; }, 1200);
                     }
+                }
+
+                // Boden-Kollision: Fehlschuss bleibt in der Wiese stecken
+                if (st.arrow && st.arrow.y >= GY) {
+                    const a = st.arrow;
+                    const t = a.vy !== 0 ? (GY - (a.y - a.vy)) / a.vy : 1;
+                    const xg = a.x - a.vx + a.vx * t;
+                    st.misses.push({ x: xg, ang: Math.atan2(a.vy, a.vx) });
+                    st.flashScore = 0; st.flash = 1;
                     st.arrow = null;
                     st.phase = st.arrows > 0 ? 'hit' : 'over';
                     if (st.phase === 'hit') setTimeout(() => { if (st.phase === 'hit') st.phase = 'idle'; }, 1100);
