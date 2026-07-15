@@ -703,7 +703,8 @@
             phase: 'idle', arrows: TOTAL, score: 0,
             power: 0, drawStart: null,
             arrow: null, hits: [], misses: [],
-            flash: 0, flashScore: 0
+            flash: 0, flashScore: 0,
+            goStart: null, goContact: null
         };
         let wobT = 0;
 
@@ -861,10 +862,10 @@
             ];
             const outer = rings[0].r, rxO = outer * TSX, ryO = outer;
 
-            // Weicher Bodenschatten am Fuss der Beine
+            // Weicher Bodenschatten am Fuss der Beine, leicht nach rechts hinten versetzt
             ctx.fillStyle = 'rgba(46,36,22,0.10)';
             ctx.beginPath();
-            ctx.ellipse(TX + 8, TY + ryO + 114, rxO * 1.15, 10, 0, 0, Math.PI * 2);
+            ctx.ellipse(TX + 36, TY + ryO + 106, rxO * 1.15, 9, 0, 0, Math.PI * 2);
             ctx.fill();
 
             // Drei Beine (Holz), fächern nach unten bis zum Boden -> aufgebockt
@@ -1053,22 +1054,87 @@
             ctx.fillText('Volltreffer!', W / 2, H * 0.32 - rise);
         }
 
+        // Gestaffelte End-Sequenz:
+        // 1) Frage einblenden -> verblassen -> Pause
+        // 2) "Übung ist der Weg." -> verblassen -> Pause
+        // 3) Zwei Buttons; "In's Reale übertreten" leuchtet gold auf und führt zum Kontakt
+        const GO_BTN_T = 7.8;   // Sekunden bis die Buttons erscheinen
+
         function drawGameOver() {
+            if (!st.goStart) st.goStart = Date.now();
+            const t = (Date.now() - st.goStart) / 1000;
+
             ctx.fillStyle = 'rgba(40,32,18,0.85)';
             ctx.fillRect(0, 0, W, H);
-
             ctx.textAlign = 'center';
-            ctx.fillStyle = C.cream;
-            ctx.font = '300 30px Cormorant Garamond, serif';
-            ctx.fillText('Übung ist der Weg.', W / 2, H / 2 - 20);
-            ctx.fillText('Ich freue mich auf Sie auf dem Feld.', W / 2, H / 2 + 18);
 
-            ctx.strokeStyle = 'rgba(200,150,62,0.5)';
+            // Phase 1: Frage (0–1.8s voll, bis 3.3s verblassen)
+            const a1 = t < 1.8 ? 1 : t < 3.3 ? 1 - (t - 1.8) / 1.5 : 0;
+            if (a1 > 0) {
+                ctx.fillStyle = `rgba(247,242,232,${a1 * 0.92})`;
+                ctx.font = '300 26px Cormorant Garamond, serif';
+                ctx.fillText('Wie waren diese ersten drei Digital-Schüsse?', W / 2, H / 2 + 8);
+            }
+
+            // Phase 2: Leitsatz (ab 4.0s: 1.6s voll, dann 1.5s verblassen)
+            const t2 = t - 4.0;
+            const a2 = t2 < 0 ? 0 : t2 < 1.6 ? 1 : t2 < 3.1 ? 1 - (t2 - 1.6) / 1.5 : 0;
+            if (a2 > 0) {
+                ctx.fillStyle = `rgba(247,242,232,${a2 * 0.92})`;
+                ctx.font = '300 30px Cormorant Garamond, serif';
+                ctx.fillText('Übung ist der Weg.', W / 2, H / 2 + 8);
+            }
+
+            // Phase 3: Buttons (ab GO_BTN_T einblenden)
+            const t3 = t - GO_BTN_T;
+            if (t3 < 0) return;
+            const a3 = Math.min(1, t3 / 0.6);
+
+            if (st.goContact) {
+                // Goldenes Aufleuchten des zweiten Buttons
+                const p = Math.min(1, (Date.now() - st.goContact) / 300);
+                const bw = 200 + 160 * p, bh = 44 + 10 * p;
+                const bcx = W / 2 + 118;
+                ctx.save();
+                ctx.shadowColor = 'rgba(232,180,70,0.9)';
+                ctx.shadowBlur = 28 * p;
+                const gg = ctx.createLinearGradient(0, H / 2 - bh / 2, 0, H / 2 + bh / 2);
+                gg.addColorStop(0, '#E8C25E');
+                gg.addColorStop(1, '#C8962A');
+                ctx.fillStyle = gg;
+                ctx.fillRect(bcx - bw / 2, H / 2 - bh / 2, bw, bh);
+                ctx.restore();
+                ctx.fillStyle = `rgba(58,44,20,${p})`;
+                ctx.font = '500 17px Cormorant Garamond, serif';
+                ctx.fillText('Ich freue mich auf Sie auf dem Feld!', bcx, H / 2 + 6);
+                return;
+            }
+
             ctx.lineWidth = 1;
-            ctx.strokeRect(W / 2 - 75, H / 2 + 78, 150, 36);
-            ctx.fillStyle = 'rgba(247,242,232,0.5)';
             ctx.font = '600 10px Jost, sans-serif';
-            ctx.fillText('NOCHMAL', W / 2, H / 2 + 101);
+            // Button 1: Nochmals schiessen
+            ctx.strokeStyle = `rgba(200,150,62,${0.55 * a3})`;
+            ctx.strokeRect(W / 2 - 218, H / 2 - 22, 200, 44);
+            ctx.fillStyle = `rgba(247,242,232,${0.6 * a3})`;
+            ctx.fillText('NOCHMALS SCHIESSEN', W / 2 - 118, H / 2 + 4);
+            // Button 2: In's Reale übertreten
+            ctx.strokeStyle = `rgba(200,150,62,${0.85 * a3})`;
+            ctx.strokeRect(W / 2 + 18, H / 2 - 22, 200, 44);
+            ctx.fillStyle = `rgba(232,180,70,${0.9 * a3})`;
+            ctx.fillText("IN'S REALE ÜBERTRETEN", W / 2 + 118, H / 2 + 4);
+        }
+
+        function handleGameOverClick(cx, cy) {
+            if (st.goContact) return;
+            const t = st.goStart ? (Date.now() - st.goStart) / 1000 : 0;
+            // Klick während der Texte: Sequenz überspringen, direkt zu den Buttons
+            if (t < GO_BTN_T) { st.goStart = Date.now() - GO_BTN_T * 1000; return; }
+            const inY = cy > H / 2 - 22 && cy < H / 2 + 22;
+            if (inY && cx > W / 2 - 218 && cx < W / 2 - 18) { reset(); return; }
+            if (inY && cx > W / 2 + 18 && cx < W / 2 + 218) {
+                st.goContact = Date.now();
+                setTimeout(() => { window.location.href = 'index.html#kontakt'; }, 1600);
+            }
         }
 
         function update() {
@@ -1146,7 +1212,8 @@
 
         function reset() {
             st = { phase: 'idle', arrows: TOTAL, score: 0, power: 0,
-                   drawStart: null, arrow: null, hits: [], misses: [], flash: 0, flashScore: 0 };
+                   drawStart: null, arrow: null, hits: [], misses: [], flash: 0, flashScore: 0,
+                   goStart: null, goContact: null };
         }
 
         function shoot() {
@@ -1172,7 +1239,7 @@
                 const r = canvas.getBoundingClientRect();
                 const cx = (e.clientX - r.left) * W / r.width;
                 const cy = (e.clientY - r.top) * H / r.height;
-                if (cx > W/2-75 && cx < W/2+75 && cy > H/2+78 && cy < H/2+114) reset();
+                handleGameOverClick(cx, cy);
                 return;
             }
             if (st.phase === 'idle') { st.phase = 'drawing'; st.drawStart = Date.now(); sndDraw(); }
@@ -1183,7 +1250,14 @@
 
         canvas.addEventListener('touchstart', e => {
             e.preventDefault();
-            if (st.phase === 'gameover') { reset(); return; }
+            if (st.phase === 'gameover') {
+                const tp = e.touches[0];
+                const r = canvas.getBoundingClientRect();
+                const cx = (tp.clientX - r.left) * W / r.width;
+                const cy = (tp.clientY - r.top) * H / r.height;
+                handleGameOverClick(cx, cy);
+                return;
+            }
             if (st.phase === 'idle') { st.phase = 'drawing'; st.drawStart = Date.now(); sndDraw(); }
         }, { passive: false });
 
