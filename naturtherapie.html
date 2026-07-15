@@ -316,14 +316,14 @@
             .galerie { padding: 0 1.5rem 3rem; }
             .closing { padding: 2rem 1.5rem 4rem; }
         }
-        /* HERO TITLE + EMBLEM */
-        .hero-title-row {
-            display: flex;
-            align-items: center;
-            gap: 1.2rem;
-        }
+        /* HERO TITLE + EMBLEM (Icon links neben Titel, Titel bleibt an Position) */
+        .hero h1 { position: relative; }
         .hero-emblem {
-            flex-shrink: 0;
+            position: absolute;
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-right: 1.4rem;
             width: 150px;
             height: 150px;
             opacity: 0.13;
@@ -337,9 +337,9 @@
             stroke-linecap: round;
             stroke-linejoin: round;
         }
-        @media (max-width: 640px) {
-            .hero-emblem { width: 96px; height: 96px; }
-            .hero-title-row { gap: 0.8rem; }
+        /* Zu schmal fuer das Icon links daneben -> ausblenden */
+        @media (max-width: 1180px) {
+            .hero-emblem { display: none; }
         }
 
     </style>
@@ -376,8 +376,7 @@
 
     <div class="hero">
         <span class="page-label">Stärkung von Resilienz und Selbstwert · Positive Lebensausrichtung</span>
-        <div class="hero-title-row">
-        <div class="hero-emblem" aria-hidden="true"><svg viewBox="0 0 48 48">
+        <h1><span class="hero-emblem" aria-hidden="true"><svg viewBox="0 0 48 48">
                             <!-- Stiel -->
                             <line x1="24" y1="38" x2="24" y2="20"/>
                             <!-- Linkes Blatt -->
@@ -397,9 +396,7 @@
                             <path d="M30 41 C32 42 34 42 35 44" fill="none" stroke-width="0.7"/>
                             <path d="M21 43 C20 44 19 45 18 46" fill="none" stroke-width="0.6"/>
                             <path d="M27 43 C28 44 29 45 30 46" fill="none" stroke-width="0.6"/>
-                        </svg></div>
-        <h1>Naturtherapie</h1>
-        </div>
+                        </svg></span>Naturtherapie</h1>
         <div class="hero-rule"></div>
         <p class="hero-intro">Seins-Erfahrung in der Natur wie barfüssiges Schleichen auf der Wiese, tiefes Atmen, Tasten und Riechen bei den Bäumen, LandArt gestalten zum Thema «Mein Standort» oder «Wir, eine stärkende Einheit» — alles erdet, weckt die Lebenskraft, bringt Fokus und Klarheit.</p>
     </div>

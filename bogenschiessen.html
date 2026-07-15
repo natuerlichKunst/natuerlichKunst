@@ -470,14 +470,14 @@
             .galerie { padding: 0 1.5rem 3rem; }
             .closing { padding: 2rem 1.5rem 4rem; }
         }
-        /* HERO TITLE + EMBLEM */
-        .hero-title-row {
-            display: flex;
-            align-items: center;
-            gap: 1.2rem;
-        }
+        /* HERO TITLE + EMBLEM (Icon links neben Titel, Titel bleibt an Position) */
+        .hero h1 { position: relative; }
         .hero-emblem {
-            flex-shrink: 0;
+            position: absolute;
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            margin-right: 1.4rem;
             width: 150px;
             height: 150px;
             opacity: 0.13;
@@ -491,9 +491,9 @@
             stroke-linecap: round;
             stroke-linejoin: round;
         }
-        @media (max-width: 640px) {
-            .hero-emblem { width: 96px; height: 96px; }
-            .hero-title-row { gap: 0.8rem; }
+        /* Zu schmal fuer das Icon links daneben -> ausblenden */
+        @media (max-width: 1180px) {
+            .hero-emblem { display: none; }
         }
 
     </style>
@@ -530,8 +530,7 @@
 
     <div class="hero">
         <span class="page-label">Förderung von Selbstvertrauen und Vitalität · Fokus auf nächste Lebensschritte</span>
-        <div class="hero-title-row">
-        <div class="hero-emblem" aria-hidden="true"><svg viewBox="0 0 48 48">
+        <h1><span class="hero-emblem" aria-hidden="true"><svg viewBox="0 0 48 48">
                             <!-- Bogen öffnet nach links -->
                             <path d="M38 24 C38 14 31 8 24 8"/>
                             <path d="M38 24 C38 34 31 40 24 40"/>
@@ -540,9 +539,7 @@
                             <!-- Pfeil liegt über dem Bogen, zeigt nach rechts -->
                             <line x1="18" y1="24" x2="46" y2="24"/>
                             <polyline points="43,19 48,24 43,29"/>
-                        </svg></div>
-        <h1>Therapeutisches Bogenschiessen</h1>
-        </div>
+                        </svg></span>Therapeutisches Bogenschiessen</h1>
         <div class="hero-rule"></div>
         <p class="hero-intro">Pfeil und Bogen als Spiegel — ein Weg zu sich selbst: Im Therapeutischen Bogenschiessen bilden Füsse, Bogen und Atmung einen Anker und jeder Pfeil ist eine neue, frische Möglichkeit.</p>
     </div>
