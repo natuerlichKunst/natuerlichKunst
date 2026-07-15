@@ -392,9 +392,19 @@
             line-height: 1.6;
             color: var(--cream-dim);
         }
-        .audio-hint audio {
-            height: 34px;
-            max-width: 100%;
+        .audio-hint #naturToggle {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(200,146,42,0.5);
+            border-radius: 50%;
+            width: 42px; height: 42px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        .audio-hint #naturToggle:hover {
+            background: rgba(200,146,42,0.18);
+            border-color: var(--amber);
         }
         .spiel-ausblick { margin-top: 3.5rem; }
         .spiel-ausblick .ausblick { color: var(--amber); font-weight: 600; }
@@ -634,11 +644,19 @@
     <!-- ── BOGENSPIEL ── -->
     <div class="spiel-block reveal">
         <span class="galerie-title">Spielerisch lernen</span>
-        <h2 class="spiel-title">Bogenschiessen im <em>Mini-Format</em></h2>
-        <p class="spiel-intro">Dazu eine kleine Imaginationsübung: Stellen Sie sich folgendes vor: Sie stehen auf der Wiese und hören einigen Vögeln beim singen zu. Der morgendliche Wind streicht sanft über Ihre Arme und Ihr Gesicht. Sie nehmen den Bogen hoch mit eingelegtem Pfeil, Sie spannen und spüren die Sehne an Ihren Fingern. Dann lassen Sie los.</p>
+        <h2 class="spiel-title">Bogenschiessen <em>im Mini-Format</em></h2>
+        <p class="spiel-intro">Hierzu eine kleine Imaginationsübung: Stellen Sie sich folgendes vor: Sie stehen auf der Wiese und hören einigen Vögeln beim singen zu. Der morgendliche Wind streicht sanft über Ihre Arme und Ihr Gesicht. Sie nehmen den Bogen hoch mit eingelegtem Pfeil, Sie spannen und spüren die Sehne an Ihren Fingern. Dann lassen Sie los.</p>
         <div class="audio-hint">
             <span>Vielleicht hilft Ihnen dieses Natur-Audio zur Konzentration:</span>
-            <audio controls preload="none" src="audio/natur-konzentration.m4a"></audio>
+            <button id="naturToggle" onclick="toggleNaturAudio()" title="Natur-Audio abspielen">
+                <svg id="naturPlayIcon" viewBox="0 0 24 24" width="16" height="16" fill="var(--amber)">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+                <svg id="naturPauseIcon" viewBox="0 0 24 24" width="16" height="16" fill="var(--amber)" style="display:none;">
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                </svg>
+            </button>
+            <audio id="naturAudio" loop preload="none" src="audio/natur-konzentration.m4a"></audio>
         </div>
         <div class="game-wrap">
             <canvas id="archery"></canvas>
@@ -1039,11 +1057,11 @@
             if (st.phase === 'flying' && st.arrow) {
                 st.arrow.x += st.arrow.vx;
                 st.arrow.y += st.arrow.vy;
-                st.arrow.vy += 0.06;
+                st.arrow.vy += 0.12;
 
                 if (st.arrow.x >= TX) {
-                    const dx = st.arrow.x - TX;
-                    const dy = st.arrow.y - TY;
+                    const dx = (st.arrow.x - st.arrow.vx * 0.5) - TX;
+                    const dy = (st.arrow.y - st.arrow.vy * 0.5) - TY;
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     const sc = dist <= 6 ? 10 : dist <= 14 ? 9 : dist <= 27 ? 7 :
                                dist <= 41 ? 5 : dist <= 54 ? 3 : dist <= 68 ? 1 : 0;
@@ -1051,8 +1069,8 @@
                     st.score += sc;
                     st.flashScore = sc;
                     st.flash = 1.4;
-                    sndHit();
                     if (sc > 0) {
+                        sndHit();
                         st.hits.push({
                             dx: Math.max(-66, Math.min(66, dx)),
                             dy: Math.max(-66, Math.min(66, dy))
@@ -1095,15 +1113,16 @@
         function shoot() {
             if (st.phase !== 'drawing') return;
             const wb = wobble();
-            const g = 0.06;                     // muss zur Schwerkraft im update() passen
+            const g = 0.12;                     // muss zur Schwerkraft im update() passen
             const sx = BX + 80;
             const sy = BY;                      // feste Abschusshöhe
-            const vx = st.power * 8 + 12;       // 12..20 – immer genug, um die Scheibe zu erreichen
-            const T = (TX - sx) / vx;           // Flugzeit bis zur Zielmitte
-            // Auf die Zielmitte zielen (mit kleinem Wackel-Fehler); Schwerkraft wird rausgerechnet,
-            // damit der Pfeil zuverlässig in der Scheibe landet.
-            const targetY = TY + wb;
-            const vy = (targetY - sy - 0.5 * g * T * T) / T;
+            const vx = st.power * 14 + 7;       // 7..21
+            const T = (TX - sx) / vx;
+            // Schwierigkeit: unter ~50% Zugkraft fällt der Pfeil unter/neben die Scheibe.
+            // Der Straf-Abstand wächst quadratisch, je weniger gespannt wird (0 bei voller Kraft).
+            const penalty = 300 * Math.pow(1 - st.power, 2);
+            const dyLand = penalty + wb;        // gewünschte Abweichung von der Zielmitte
+            const vy = (dyLand - 0.5 * g * T * T) / T;
             st.arrow = { x: sx, y: sy, vx: vx, vy: vy };
             st.arrows--;
             st.phase = 'flying';
@@ -1203,6 +1222,16 @@
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape') lightbox.classList.remove('open');
         });
+    </script>
+    <script>
+        function toggleNaturAudio() {
+            const a = document.getElementById('naturAudio');
+            const p = document.getElementById('naturPlayIcon');
+            const q = document.getElementById('naturPauseIcon');
+            if (a.paused) { a.play(); p.style.display = 'none'; q.style.display = 'block'; }
+            else { a.pause(); p.style.display = 'block'; q.style.display = 'none'; }
+            a.onended = () => { p.style.display = 'block'; q.style.display = 'none'; };
+        }
     </script>
 </body>
 </html>
