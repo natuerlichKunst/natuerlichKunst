@@ -860,18 +860,18 @@
             ];
             const outer = rings[0].r, rxO = outer * TSX, ryO = outer;
 
-            // Weicher Bodenschatten unter der Scheibe
+            // Weicher Bodenschatten am Fuss der Beine
             ctx.fillStyle = 'rgba(46,36,22,0.10)';
             ctx.beginPath();
-            ctx.ellipse(TX + 8, TY + ryO + 76, rxO * 0.95, 9, 0, 0, Math.PI * 2);
+            ctx.ellipse(TX + 8, TY + ryO + 114, rxO * 1.15, 10, 0, 0, Math.PI * 2);
             ctx.fill();
 
-            // Drei Beine (Holz), fächern nach unten -> aufgebockt
+            // Drei Beine (Holz), fächern nach unten bis zum Boden -> aufgebockt
             ctx.strokeStyle = C.wood;
             ctx.lineCap = 'round';
             ctx.lineWidth = 5;
             const legTop = TY + ryO * 0.35;
-            [[-rxO * 0.62, ryO + 66], [rxO * 0.10, ryO + 80], [rxO * 0.70, ryO + 58]].forEach(([ox, oy]) => {
+            [[-rxO * 0.94, ryO + 108], [rxO * 0.14, ryO + 122], [rxO * 1.04, ryO + 100]].forEach(([ox, oy]) => {
                 ctx.beginPath();
                 ctx.moveTo(TX + ox * 0.28, legTop);
                 ctx.lineTo(TX + ox, TY + oy);
