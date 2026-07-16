@@ -731,7 +731,7 @@
             o.frequency.setValueAtTime(170, t);
             o.frequency.exponentialRampToValueAtTime(300, t + 0.55);
             g.gain.setValueAtTime(0.0001, t);
-            g.gain.exponentialRampToValueAtTime(0.06, t + 0.09);
+            g.gain.exponentialRampToValueAtTime(0.18, t + 0.09);
             g.gain.exponentialRampToValueAtTime(0.0001, t + 0.6);
             o.connect(g); g.connect(a.destination);
             o.start(t); o.stop(t + 0.62);
@@ -744,7 +744,7 @@
             o.type = 'triangle';
             o.frequency.setValueAtTime(160, t);
             o.frequency.exponentialRampToValueAtTime(68, t + 0.18);
-            g.gain.setValueAtTime(0.22, t);
+            g.gain.setValueAtTime(0.5, t);
             g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
             o.connect(g); g.connect(a.destination);
             o.start(t); o.stop(t + 0.24);
@@ -755,7 +755,7 @@
             const n = a.createBufferSource(); n.buffer = buf;
             const nf = a.createBiquadFilter(); nf.type = 'lowpass'; nf.frequency.value = 1100;
             const ng = a.createGain();
-            ng.gain.setValueAtTime(0.12, t);
+            ng.gain.setValueAtTime(0.3, t);
             ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
             n.connect(nf); nf.connect(ng); ng.connect(a.destination);
             n.start(t); n.stop(t + 0.07);
@@ -1342,13 +1342,43 @@
         });
     </script>
     <script>
-        function toggleNaturAudio() {
-            const a = document.getElementById('naturAudio');
+        // Lückenlose Endlosschleife via Web Audio (das <audio loop> erzeugte eine kleine Stille-Pause).
+        let nCtx = null, nBuf = null, nSrc = null, nGain = null, nOn = false, nLoading = false;
+        async function toggleNaturAudio() {
             const p = document.getElementById('naturPlayIcon');
             const q = document.getElementById('naturPauseIcon');
-            if (a.paused) { a.play(); p.style.display = 'none'; q.style.display = 'block'; }
-            else { a.pause(); p.style.display = 'block'; q.style.display = 'none'; }
-            a.onended = () => { p.style.display = 'block'; q.style.display = 'none'; };
+            if (!nCtx) {
+                nCtx = new (window.AudioContext || window.webkitAudioContext)();
+                nGain = nCtx.createGain();
+                nGain.gain.value = 0.8;
+                nGain.connect(nCtx.destination);
+            }
+            if (nOn) {                        // pausieren (Position bleibt erhalten)
+                nCtx.suspend();
+                nOn = false;
+                p.style.display = 'block'; q.style.display = 'none';
+                return;
+            }
+            p.style.display = 'none'; q.style.display = 'block';
+            nCtx.resume();
+            if (!nBuf && !nLoading) {
+                nLoading = true;
+                try {
+                    const resp = await fetch('audio/natur-konzentration.m4a');
+                    nBuf = await nCtx.decodeAudioData(await resp.arrayBuffer());
+                } catch (e) { nLoading = false; p.style.display = 'block'; q.style.display = 'none'; return; }
+                nLoading = false;
+            }
+            if (nBuf && !nSrc) {
+                nSrc = nCtx.createBufferSource();
+                nSrc.buffer = nBuf;
+                nSrc.loop = true;                 // sample-genaue, lückenlose Schleife
+                nSrc.loopStart = 0.05;
+                nSrc.loopEnd = Math.max(0.1, nBuf.duration - 0.05);
+                nSrc.connect(nGain);
+                nSrc.start(0);
+            }
+            nOn = true;
         }
     </script>
 </body>
