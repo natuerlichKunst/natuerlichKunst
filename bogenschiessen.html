@@ -908,28 +908,39 @@
 
             // Fehlschüsse: Pfeile stecken im Einschlagwinkel in der Wiese
             st.misses.forEach(m => {
-                const len = 70;
-                const tipX = m.x, tipY = GY + 4;
-                drawArrow(tipX - Math.cos(m.ang) * len, tipY - Math.sin(m.ang) * len, tipX, tipY);
+                const VIS = 70, embed = 18;      // Kopf ganz + ~10% des Schafts im Boden -> Kopf unsichtbar
+                const dirX = Math.cos(m.ang), dirY = Math.sin(m.ang);   // Flugrichtung in den Boden
+                const ex = m.x, ey = GY + 4;     // Einschlagpunkt an der Boden-Oberfläche
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(-140, -140, W + 280, ey + 140);   // nur oberhalb des Bodens zeichnen
+                ctx.clip();
+                drawArrow(ex - dirX * VIS, ey - dirY * VIS, ex + dirX * embed, ey + dirY * embed);
+                ctx.restore();
             });
         }
 
         // Pfeil steckt: Spitze im Ziel, Schaft + Federn ragen nach oben-links (zum Schützen) heraus
         function drawStuckArrow(px, py) {
-            const ang = -Math.PI * 0.78;
-            const len = 70;
-            const bx = px + Math.cos(ang) * len;
-            const by = py + Math.sin(ang) * len;
-            drawArrow(bx, by, px, py);
+            const ang = -Math.PI * 0.78;         // Richtung zur Nocke (nach oben-links)
+            const VIS = 70, embed = 4;           // Pfeilkopf ein bisschen in der Scheibe versenkt
+            const dirX = -Math.cos(ang), dirY = -Math.sin(ang);   // Nocke -> Spitze (in die Scheibe)
+            drawArrow(px - dirX * VIS, py - dirY * VIS, px + dirX * embed, py + dirY * embed, embed);
         }
 
-        // Pfeil von (x1,y1)=hinten/Nocke bis (x2,y2)=Spitze; Federn hinten
-        function drawArrow(x1, y1, x2, y2) {
+        // Pfeil von (x1,y1)=hinten/Nocke bis (x2,y2)=Spitze; Federn hinten.
+        // embed > 0: vorderes Stück (Spitze) steckt "im Material" und wird bis zur Oberfläche abgeschnitten.
+        function drawArrow(x1, y1, x2, y2, embed) {
             const angle = Math.atan2(y2 - y1, x2 - x1);
             const len = Math.hypot(x2 - x1, y2 - y1);
             ctx.save();
             ctx.translate(x1, y1);
             ctx.rotate(angle);
+            if (embed > 0) {
+                ctx.beginPath();
+                ctx.rect(-140, -40, 140 + (len - embed), 80);
+                ctx.clip();
+            }
 
             // Schaft
             ctx.strokeStyle = C.shaft;
