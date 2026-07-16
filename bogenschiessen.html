@@ -908,7 +908,7 @@
 
             // Fehlschüsse: Pfeile stecken im Einschlagwinkel in der Wiese
             st.misses.forEach(m => {
-                const len = 30;
+                const len = 70;
                 const tipX = m.x, tipY = GY + 4;
                 drawArrow(tipX - Math.cos(m.ang) * len, tipY - Math.sin(m.ang) * len, tipX, tipY);
             });
@@ -917,7 +917,7 @@
         // Pfeil steckt: Spitze im Ziel, Schaft + Federn ragen nach oben-links (zum Schützen) heraus
         function drawStuckArrow(px, py) {
             const ang = -Math.PI * 0.78;
-            const len = 30;
+            const len = 70;
             const bx = px + Math.cos(ang) * len;
             const by = py + Math.sin(ang) * len;
             drawArrow(bx, by, px, py);
@@ -1055,37 +1055,31 @@
         }
 
         // Gestaffelte End-Sequenz:
-        // 1) Frage einblenden -> verblassen -> Pause
-        // 2) "Übung ist der Weg." -> verblassen -> Pause
-        // 3) Zwei Buttons; "In's Reale übertreten" leuchtet gold auf und führt zum Kontakt
-        const GO_BTN_T = 7.8;   // Sekunden bis die Buttons erscheinen
+        // Pro Durchgang eine eigene Botschaft (einblenden -> verblassen -> Pause),
+        // danach zwei Buttons; "In's Reale übertreten" leuchtet gold auf und führt zum Kontakt.
+        const GO_BTN_T = 4.2;   // Sekunden bis die Buttons erscheinen
+        let round = 0;          // abgeschlossene Durchgänge (überlebt "Nochmals schiessen")
 
         function drawGameOver() {
-            if (!st.goStart) st.goStart = Date.now();
+            if (!st.goStart) { st.goStart = Date.now(); round++; }
             const t = (Date.now() - st.goStart) / 1000;
 
             ctx.fillStyle = 'rgba(40,32,18,0.85)';
             ctx.fillRect(0, 0, W, H);
             ctx.textAlign = 'center';
 
-            // Phase 1: Frage (0–1.8s voll, bis 3.3s verblassen)
+            // Botschaft je Durchgang (0–1.8s voll, bis 3.3s verblassen)
+            const msg = round <= 1 ? 'Wie waren diese ersten drei Digital-Schüsse?' :
+                        round === 2 ? 'Übung ist der Weg.' :
+                        'Dran bleiben heisst Ankommen ... zum gegebenen Zeitpunkt.';
             const a1 = t < 1.8 ? 1 : t < 3.3 ? 1 - (t - 1.8) / 1.5 : 0;
             if (a1 > 0) {
                 ctx.fillStyle = `rgba(247,242,232,${a1 * 0.92})`;
                 ctx.font = '300 26px Cormorant Garamond, serif';
-                ctx.fillText('Wie waren diese ersten drei Digital-Schüsse?', W / 2, H / 2 + 8);
+                ctx.fillText(msg, W / 2, H / 2 + 8);
             }
 
-            // Phase 2: Leitsatz (ab 4.0s: 1.6s voll, dann 1.5s verblassen)
-            const t2 = t - 4.0;
-            const a2 = t2 < 0 ? 0 : t2 < 1.6 ? 1 : t2 < 3.1 ? 1 - (t2 - 1.6) / 1.5 : 0;
-            if (a2 > 0) {
-                ctx.fillStyle = `rgba(247,242,232,${a2 * 0.92})`;
-                ctx.font = '300 30px Cormorant Garamond, serif';
-                ctx.fillText('Übung ist der Weg.', W / 2, H / 2 + 8);
-            }
-
-            // Phase 3: Buttons (ab GO_BTN_T einblenden)
+            // Buttons (ab GO_BTN_T einblenden)
             const t3 = t - GO_BTN_T;
             if (t3 < 0) return;
             const a3 = Math.min(1, t3 / 0.6);
