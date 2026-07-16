@@ -1552,19 +1552,43 @@
     <script>
 
         // Audio toggle
-        function toggleAudio() {
-            const audio = document.getElementById('bgAudio');
+        // Lückenlose Endlosschleife via Web Audio (das <audio loop> erzeugte eine kleine Stille-Pause).
+        let bgCtx = null, bgBuf = null, bgSrc = null, bgGain = null, bgOn = false, bgLoading = false;
+        async function toggleAudio() {
             const playIcon = document.getElementById('playIcon');
             const pauseIcon = document.getElementById('pauseIcon');
-            if (audio.paused) {
-                audio.play();
-                playIcon.style.display = 'none';
-                pauseIcon.style.display = 'block';
-            } else {
-                audio.pause();
-                playIcon.style.display = 'block';
-                pauseIcon.style.display = 'none';
+            if (!bgCtx) {
+                bgCtx = new (window.AudioContext || window.webkitAudioContext)();
+                bgGain = bgCtx.createGain();
+                bgGain.gain.value = 0.8;
+                bgGain.connect(bgCtx.destination);
             }
+            if (bgOn) {                       // pausieren (Position bleibt erhalten)
+                bgCtx.suspend();
+                bgOn = false;
+                playIcon.style.display = 'block'; pauseIcon.style.display = 'none';
+                return;
+            }
+            playIcon.style.display = 'none'; pauseIcon.style.display = 'block';
+            bgCtx.resume();
+            if (!bgBuf && !bgLoading) {
+                bgLoading = true;
+                try {
+                    const resp = await fetch('audio/natur-konzentration.m4a');
+                    bgBuf = await bgCtx.decodeAudioData(await resp.arrayBuffer());
+                } catch (e) { bgLoading = false; playIcon.style.display = 'block'; pauseIcon.style.display = 'none'; return; }
+                bgLoading = false;
+            }
+            if (bgBuf && !bgSrc) {
+                bgSrc = bgCtx.createBufferSource();
+                bgSrc.buffer = bgBuf;
+                bgSrc.loop = true;                // sample-genaue, lückenlose Schleife
+                bgSrc.loopStart = 0.05;
+                bgSrc.loopEnd = Math.max(0.1, bgBuf.duration - 0.05);
+                bgSrc.connect(bgGain);
+                bgSrc.start(0);
+            }
+            bgOn = true;
         }
         // Nav scroll
         const navbar = document.getElementById('navbar');
