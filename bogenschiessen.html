@@ -1056,9 +1056,20 @@
 
         // Gestaffelte End-Sequenz:
         // Pro Durchgang eine eigene Botschaft (einblenden -> verblassen -> Pause),
-        // danach zwei Buttons; "In's Reale übertreten" leuchtet gold auf und führt zum Kontakt.
-        const GO_BTN_T = 4.2;   // Sekunden bis die Buttons erscheinen
-        let round = 0;          // abgeschlossene Durchgänge (überlebt "Nochmals schiessen")
+        // danach zwei Buttons; "Real üben" leuchtet gold auf und führt zum Kontakt.
+        const GO_BTN_T = 4.2;   // Sekunden bis die Buttons erscheinen (wenn eine Botschaft läuft)
+        let round = 0;          // abgeschlossene Durchgänge (überlebt "Nochmals")
+
+        // Grosse, gut lesbare Buttons (auch auf dem Handy)
+        const B_W = 240, B_H = 66, B_CX1 = W / 2 - 132, B_CX2 = W / 2 + 132;
+
+        function goMessage() {
+            return round <= 1 ? 'Wie waren diese ersten drei Digital-Schüsse?' :
+                   round === 2 ? 'Übung ist der Weg.' :
+                   round === 3 ? 'Dran bleiben heisst Ankommen ... zum gegebenen Zeitpunkt.' :
+                   '';   // ab dem 4. Durchgang keine Botschaft mehr
+        }
+        function goBtnDelay() { return goMessage() ? GO_BTN_T : 0.35; }
 
         function drawGameOver() {
             if (!st.goStart) { st.goStart = Date.now(); round++; }
@@ -1068,64 +1079,64 @@
             ctx.fillRect(0, 0, W, H);
             ctx.textAlign = 'center';
 
-            // Botschaft je Durchgang (0–1.8s voll, bis 3.3s verblassen)
-            const msg = round <= 1 ? 'Wie waren diese ersten drei Digital-Schüsse?' :
-                        round === 2 ? 'Übung ist der Weg.' :
-                        'Dran bleiben heisst Ankommen ... zum gegebenen Zeitpunkt.';
-            const a1 = t < 1.8 ? 1 : t < 3.3 ? 1 - (t - 1.8) / 1.5 : 0;
-            if (a1 > 0) {
-                ctx.fillStyle = `rgba(247,242,232,${a1 * 0.92})`;
-                ctx.font = '300 26px Cormorant Garamond, serif';
-                ctx.fillText(msg, W / 2, H / 2 + 8);
+            // Botschaft je Durchgang (0–1.8s voll, bis 3.3s verblassen); ab 4. Durchgang keine
+            const msg = goMessage();
+            if (msg) {
+                const a1 = t < 1.8 ? 1 : t < 3.3 ? 1 - (t - 1.8) / 1.5 : 0;
+                if (a1 > 0) {
+                    ctx.fillStyle = `rgba(247,242,232,${a1 * 0.92})`;
+                    ctx.font = '300 26px Cormorant Garamond, serif';
+                    ctx.fillText(msg, W / 2, H / 2 + 8);
+                }
             }
 
-            // Buttons (ab GO_BTN_T einblenden)
-            const t3 = t - GO_BTN_T;
+            // Buttons einblenden
+            const t3 = t - goBtnDelay();
             if (t3 < 0) return;
             const a3 = Math.min(1, t3 / 0.6);
 
             if (st.goContact) {
                 // Goldenes Aufleuchten des zweiten Buttons
                 const p = Math.min(1, (Date.now() - st.goContact) / 300);
-                const bw = 200 + 160 * p, bh = 44 + 10 * p;
-                const bcx = W / 2 + 118;
+                const bw = B_W + 200 * p, bh = B_H + 12 * p;
                 ctx.save();
                 ctx.shadowColor = 'rgba(232,180,70,0.9)';
-                ctx.shadowBlur = 28 * p;
+                ctx.shadowBlur = 32 * p;
                 const gg = ctx.createLinearGradient(0, H / 2 - bh / 2, 0, H / 2 + bh / 2);
                 gg.addColorStop(0, '#E8C25E');
                 gg.addColorStop(1, '#C8962A');
                 ctx.fillStyle = gg;
-                ctx.fillRect(bcx - bw / 2, H / 2 - bh / 2, bw, bh);
+                ctx.fillRect(B_CX2 - bw / 2, H / 2 - bh / 2, bw, bh);
                 ctx.restore();
                 ctx.fillStyle = `rgba(58,44,20,${p})`;
-                ctx.font = '500 17px Cormorant Garamond, serif';
-                ctx.fillText('Ich freue mich auf Sie auf dem Feld!', bcx, H / 2 + 6);
+                ctx.font = '500 21px Cormorant Garamond, serif';
+                ctx.fillText('Ich freue mich auf Sie auf dem Feld!', B_CX2, H / 2 + 8);
                 return;
             }
 
-            ctx.lineWidth = 1;
-            ctx.font = '600 10px Jost, sans-serif';
-            // Button 1: Nochmals schiessen
+            ctx.lineWidth = 1.4;
+            ctx.font = '500 26px Jost, sans-serif';
+            // Button 1: Nochmals
             ctx.strokeStyle = `rgba(200,150,62,${0.55 * a3})`;
-            ctx.strokeRect(W / 2 - 218, H / 2 - 22, 200, 44);
-            ctx.fillStyle = `rgba(247,242,232,${0.6 * a3})`;
-            ctx.fillText('NOCHMALS SCHIESSEN', W / 2 - 118, H / 2 + 4);
-            // Button 2: In's Reale übertreten
-            ctx.strokeStyle = `rgba(200,150,62,${0.85 * a3})`;
-            ctx.strokeRect(W / 2 + 18, H / 2 - 22, 200, 44);
-            ctx.fillStyle = `rgba(232,180,70,${0.9 * a3})`;
-            ctx.fillText("IN'S REALE ÜBERTRETEN", W / 2 + 118, H / 2 + 4);
+            ctx.strokeRect(B_CX1 - B_W / 2, H / 2 - B_H / 2, B_W, B_H);
+            ctx.fillStyle = `rgba(247,242,232,${0.72 * a3})`;
+            ctx.fillText('Nochmals', B_CX1, H / 2 + 9);
+            // Button 2: Real üben
+            ctx.strokeStyle = `rgba(200,150,62,${0.9 * a3})`;
+            ctx.strokeRect(B_CX2 - B_W / 2, H / 2 - B_H / 2, B_W, B_H);
+            ctx.fillStyle = `rgba(232,180,70,${0.95 * a3})`;
+            ctx.fillText('Real üben', B_CX2, H / 2 + 9);
         }
 
         function handleGameOverClick(cx, cy) {
             if (st.goContact) return;
             const t = st.goStart ? (Date.now() - st.goStart) / 1000 : 0;
-            // Klick während der Texte: Sequenz überspringen, direkt zu den Buttons
-            if (t < GO_BTN_T) { st.goStart = Date.now() - GO_BTN_T * 1000; return; }
-            const inY = cy > H / 2 - 22 && cy < H / 2 + 22;
-            if (inY && cx > W / 2 - 218 && cx < W / 2 - 18) { reset(); return; }
-            if (inY && cx > W / 2 + 18 && cx < W / 2 + 218) {
+            const delay = goBtnDelay();
+            // Klick während der Botschaft: direkt zu den Buttons springen
+            if (t < delay) { st.goStart = Date.now() - delay * 1000; return; }
+            const inY = cy > H / 2 - B_H / 2 && cy < H / 2 + B_H / 2;
+            if (inY && cx > B_CX1 - B_W / 2 && cx < B_CX1 + B_W / 2) { reset(); return; }
+            if (inY && cx > B_CX2 - B_W / 2 && cx < B_CX2 + B_W / 2) {
                 st.goContact = Date.now();
                 setTimeout(() => { window.location.href = 'index.html#kontakt'; }, 1600);
             }
