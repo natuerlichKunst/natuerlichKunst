@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Tarife — NatürlichKunst</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            --forest-dark: #1e3d28;
+            --forest:      #2a5238;
+            --sage:        #7a9e7e;
+            --amber:       #c8922a;
+            --amber-light: #e8b84b;
+            --cream:       #f0ead8;
+            --cream-dim:   rgba(240,234,216,0.72);
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            background: var(--forest-dark);
+            color: var(--cream);
+            font-family: 'Jost', sans-serif;
+            font-weight: 300;
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ── NAVIGATION (einheitlich auf allen Seiten) ── */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.2rem 3rem;
+            background: rgba(10,26,15,0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(200,146,42,0.15);
+            transition: background 0.4s ease, padding 0.4s ease;
+        }
+        nav.scrolled {
+            background: rgba(10,26,15,0.96);
+            padding: 0.95rem 3rem;
+        }
+        .nav-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            font-weight: 300;
+            color: var(--cream);
+            letter-spacing: 0.04em;
+            text-decoration: none;
+        }
+        .nav-logo em { color: var(--amber); font-style: italic; }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2.25rem;
+            list-style: none;
+        }
+        .nav-links a {
+            color: var(--cream-dim);
+            text-decoration: none;
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            transition: color 0.2s ease;
+        }
+        .nav-links a:hover, .nav-links a.active { color: var(--amber-light); }
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 4px;
+            z-index: 101;
+        }
+        .hamburger span {
+            display: block;
+            width: 24px;
+            height: 1.5px;
+            background: var(--cream);
+            transition: all 0.35s ease;
+        }
+        .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+        .hamburger.open span:nth-child(2) { opacity: 0; }
+        .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+        .mobile-menu {
+            position: fixed;
+            inset: 0;
+            background: var(--forest-dark);
+            z-index: 99;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2.25rem;
+            transform: translateX(100%);
+            transition: transform 0.45s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .mobile-menu.open { transform: translateX(0); }
+        .mobile-menu a {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.9rem;
+            color: var(--cream);
+            text-decoration: none;
+            font-style: italic;
+            font-weight: 300;
+            transition: color 0.3s ease;
+        }
+        .mobile-menu a:hover, .mobile-menu a.active { color: var(--amber-light); }
+        @media (max-width: 860px) {
+            nav { padding: 1.1rem 1.5rem; }
+            nav.scrolled { padding: 0.9rem 1.5rem; }
+            .nav-links { display: none; }
+            .hamburger { display: flex; }
+        }
+
+        /* HERO */
+        .hero {
+            padding: 9rem 3rem 3rem;
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+        }
+        .hero-text { flex: 1 1 auto; min-width: 0; }
+        .hero-image {
+            flex: 0 0 auto;
+            width: 210px;
+            margin: 0;
+        }
+        .hero-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            opacity: 0.92;
+        }
+        @media (max-width: 760px) {
+            .hero { flex-direction: column; align-items: flex-start; gap: 2rem; }
+            .hero-image { width: 170px; align-self: center; }
+        }
+        .page-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--amber);
+            margin-bottom: 1rem;
+            display: block;
+        }
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(3rem, 7vw, 5.5rem);
+            font-weight: 300;
+            line-height: 1.05;
+            color: var(--cream);
+            margin-bottom: 2rem;
+        }
+        h1 em { font-style: italic; color: var(--amber); }
+        .hero-rule {
+            width: 60px;
+            height: 1px;
+            background: var(--amber);
+            margin-bottom: 2rem;
+        }
+        .hero-intro {
+            font-size: 1.05rem;
+            line-height: 1.85;
+            color: var(--cream-dim);
+            max-width: 620px;
+        }
+        .hero-intro p { margin-bottom: 1.2rem; }
+        .hero-intro p:last-child { margin-bottom: 0; }
+
+        /* CONTENT */
+        .content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 4rem 3rem 2rem;
+        }
+
+        /* PRICE TABLE */
+        .price-table {
+            width: 100%;
+            max-width: 440px;
+            border-collapse: collapse;
+            margin-bottom: 1.6rem;
+        }
+        .price-table td {
+            padding: 0.6rem 0;
+            font-size: 0.97rem;
+            color: var(--cream-dim);
+            border-bottom: 1px solid rgba(200,146,42,0.15);
+        }
+        .price-table td:last-child {
+            text-align: right;
+            color: var(--amber-light);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        /* TARIFE */
+        .tarif-block {
+            max-width: 800px;
+            margin: 0 auto 3.5rem;
+            padding-bottom: 3.5rem;
+            border-bottom: 2px solid rgba(200,146,42,0.28);
+        }
+        .tarif-block:last-of-type { border-bottom: none; }
+        .tarif-block > h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.7rem, 4vw, 2.4rem);
+            font-weight: 300;
+            color: var(--cream);
+            margin-bottom: 1.6rem;
+        }
+        .tarif-block > h2 em { font-style: normal; color: var(--cream); }
+        .rubrik-icon {
+            display: inline-block;
+            width: 42px;
+            height: 42px;
+            vertical-align: middle;
+            margin-right: 0.9rem;
+            position: relative;
+            top: -2px;
+        }
+        .rubrik-icon svg { width: 100%; height: 100%; display: block; }
+        .rubrik-icon svg * {
+            stroke: var(--amber);
+            stroke-width: 1.2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .tarif-group { margin-bottom: 2.2rem; }
+        .tarif-group:last-child { margin-bottom: 0; }
+        .tarif-table-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+            font-weight: 400;
+            color: var(--amber-light);
+            margin-bottom: 0.9rem;
+        }
+        .tarif-table-title span {
+            font-size: 0.8rem;
+            font-style: italic;
+            color: var(--cream-dim);
+        }
+        .rubrik-hint {
+            font-size: 0.8rem;
+            font-style: italic;
+            color: var(--cream-dim);
+            margin-top: -1rem;
+            margin-bottom: 2rem;
+        }
+        .tarif-note {
+            font-size: 0.95rem;
+            line-height: 1.85;
+            color: var(--cream-dim);
+            max-width: 620px;
+            margin-top: 0.4rem;
+        }
+        .zahlung {
+            max-width: 640px;
+            margin: 0 auto;
+            padding-top: 2.5rem;
+        }
+        .zahlung-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--amber);
+            display: block;
+            margin-bottom: 0.6rem;
+        }
+        .zahlung p {
+            font-size: 0.97rem;
+            color: var(--cream-dim);
+        }
+
+        /* CLOSING */
+        .closing {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 3rem 6rem;
+            border-top: 1px solid rgba(200,146,42,0.2);
+        }
+        .closing p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+            font-style: italic;
+            color: var(--cream-dim);
+            line-height: 1.7;
+            max-width: 600px;
+        }
+
+        /* REVEAL */
+        .reveal {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .reveal.visible { opacity: 1; transform: none; }
+
+        @media (max-width: 640px) {
+            .hero { padding: 7rem 1.5rem 2.5rem; }
+            .content { padding: 3rem 1.5rem 1rem; }
+            .closing { padding: 2rem 1.5rem 4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="index.html" onclick="closeMobile()">Home</a>
+        <a href="kunsttherapie.html" onclick="closeMobile()">Kunsttherapie</a>
+        <a href="naturtherapie.html" onclick="closeMobile()">Naturtherapie</a>
+        <a href="bogenschiessen.html" onclick="closeMobile()">Bogenschiessen</a>
+        <a href="ueber-mich.html" onclick="closeMobile()">Über mich</a>
+        <a href="tarife.html" onclick="closeMobile()" class="active">Tarife</a>
+        <a href="index.html#kontakt" onclick="closeMobile()">Kontakt</a>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <a href="index.html" class="nav-logo">Natürlich<em>Kunst</em></a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="kunsttherapie.html">Kunsttherapie</a></li>
+            <li><a href="naturtherapie.html">Naturtherapie</a></li>
+            <li><a href="bogenschiessen.html">Bogenschiessen</a></li>
+            <li><a href="ueber-mich.html">Über mich</a></li>
+            <li><a href="tarife.html" class="active">Tarife</a></li>
+            <li><a href="index.html#kontakt">Kontakt</a></li>
+        </ul>
+        <div class="hamburger" id="hamburger" onclick="toggleMobile()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="hero-text">
+            <span class="page-label reveal">Preise &amp; Konditionen</span>
+            <h1 class="reveal">Tarife</h1>
+            <div class="hero-rule reveal"></div>
+            <div class="hero-intro reveal">
+                <p>Derzeit können Abrechnungen noch nicht über die Schweizer Krankenkassen erfolgen. Ich bin aktuell auf dem Weg zur HPF und dem eidgenössischen Diplom, wonach ich mit den Krankenkassen abrechnen kann.</p>
+                <p>Kann jemand einen Gönnerpreis bezahlen für eine Stunde, kann ich für jemanden, der wenig verdient, ausgleichen. So können wir gemeinsam der Ungleichheit der Schweizer Lohntarife entgegenwirken.</p>
+            </div>
+        </div>
+        <figure class="hero-image reveal">
+            <img src="images/steinturm.jpg" alt="Steinturm aus balancierten Steinen am Wasser" />
+        </figure>
+    </div>
+
+    <div class="content">
+
+        <!-- ── KENNENLERN-GESPRÄCH ── -->
+        <div class="tarif-block reveal">
+            <h2><em>Kennenlern-Gespräch</em></h2>
+            <table class="price-table">
+                <tr><td>ca. 20 Minuten</td><td>20 CHF</td></tr>
+            </table>
+            <p class="tarif-note">Bei längeren Gesprächen kommt ein Aufpreis hinzu.</p>
+        </div>
+
+        <!-- ── KUNSTTHERAPIE ── -->
+        <div class="tarif-block reveal">
+            <h2><span class="rubrik-icon" aria-hidden="true"><svg viewBox="0 0 48 48">
+                <path d="M8 26 C8 16 15 8 24 8 C33 8 40 14 40 22 C40 27 37 30 32 30 L28 30 C26 30 24 32 24 34 C24 37 21 40 18 40 C12 40 8 34 8 26Z" stroke-width="1.4" fill="none"/>
+                <circle cx="16" cy="16" r="2.5" fill="none" stroke-width="1.4"/>
+                <circle cx="24" cy="12" r="2.5" fill="none" stroke-width="1.4"/>
+                <circle cx="32" cy="16" r="2.5" fill="none" stroke-width="1.4"/>
+                <circle cx="34" cy="24" r="2.5" fill="none" stroke-width="1.4"/>
+                <g transform="translate(26, 24) rotate(142)">
+                    <rect x="-1" y="-18" width="2.2" height="16" rx="1" stroke-width="1.3" fill="none"/>
+                    <rect x="-1.5" y="-3" width="3" height="2.5" rx="0.4" stroke-width="1.2" fill="none"/>
+                    <path d="M-1.5,-0.5 C-1.5,3 -1,5.5 0,7 C1,5.5 1.5,3 1.5,-0.5Z" stroke-width="1.2" fill="none"/>
+                </g>
+            </svg></span><em>Kunsttherapie</em></h2>
+
+            <div class="tarif-group">
+                <h3 class="tarif-table-title">Einzelsitzung (Kunsttherapie) <span>· pro 60-Minuten-Einheit</span></h3>
+                <table class="price-table">
+                    <tr><td>Normalpreis</td><td>141 CHF</td></tr>
+                    <tr><td>Wenig Verdienende</td><td>121 CHF</td></tr>
+                    <tr><td>Gönnerpreis 1</td><td>161 CHF</td></tr>
+                    <tr><td>Gönnerpreis 2</td><td>181 CHF</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- ── NATURTHERAPIE ── -->
+        <div class="tarif-block reveal">
+            <h2><span class="rubrik-icon" aria-hidden="true"><svg viewBox="0 0 48 48">
+                <line x1="24" y1="38" x2="24" y2="20"/>
+                <path d="M24 20 C24 20 14 16 12 8 C18 8 24 13 24 20"/>
+                <path d="M24 28 C24 28 34 24 36 16 C30 16 24 21 24 28"/>
+                <line x1="16" y1="38" x2="32" y2="38"/>
+                <path d="M24 38 C22 40 18 41 15 44"/>
+                <path d="M24 38 C23 41 21 43 20 46"/>
+                <path d="M24 38 C24 42 24 44 23 46"/>
+                <path d="M24 38 C25 41 26 43 28 46"/>
+                <path d="M24 38 C26 40 30 41 33 44"/>
+                <path d="M18 41 C16 42 14 42 13 44"/>
+                <path d="M30 41 C32 42 34 42 35 44"/>
+                <path d="M21 43 C20 44 19 45 18 46"/>
+                <path d="M27 43 C28 44 29 45 30 46"/>
+            </svg></span><em>Naturtherapie</em></h2>
+
+            <div class="tarif-group">
+                <h3 class="tarif-table-title">Einzelsitzung (Naturtherapie) <span>· pro 60-Minuten-Einheit</span></h3>
+                <table class="price-table">
+                    <tr><td>Normalpreis</td><td>141 CHF</td></tr>
+                    <tr><td>Wenig Verdienende</td><td>121 CHF</td></tr>
+                    <tr><td>Gönnerpreis 1</td><td>161 CHF</td></tr>
+                    <tr><td>Gönnerpreis 2</td><td>181 CHF</td></tr>
+                </table>
+            </div>
+
+            <div class="tarif-group">
+                <h3 class="tarif-table-title">Waldbaden in der Gruppe (Naturtherapie) <span>· pro Person</span></h3>
+                <table class="price-table">
+                    <tr><td>Normalpreis</td><td>31 CHF</td></tr>
+                    <tr><td>Wenig Verdienende</td><td>21 CHF</td></tr>
+                    <tr><td>Kinder (in Begleitung eines Erwachsenen)</td><td>11 CHF</td></tr>
+                    <tr><td>Gönnerpreis 1</td><td>41 CHF</td></tr>
+                    <tr><td>Gönnerpreis 2</td><td>51 CHF</td></tr>
+                </table>
+            </div>
+
+            <div class="tarif-group">
+                <h3 class="tarif-table-title">Kleingruppe (Naturtherapie) 3–7 Personen <span>· pro Person, pro 60-Minuten-Einheit</span></h3>
+                <table class="price-table">
+                    <tr><td>Normalpreis</td><td>71 CHF</td></tr>
+                    <tr><td>Wenig Verdienende</td><td>51 CHF</td></tr>
+                    <tr><td>Gönnerpreis 1</td><td>91 CHF</td></tr>
+                    <tr><td>Gönnerpreis 2</td><td>111 CHF</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- ── BOGENSCHIESSEN ── -->
+        <div class="tarif-block reveal">
+            <h2><span class="rubrik-icon" aria-hidden="true"><svg viewBox="0 0 48 48">
+                <path d="M38 24 C38 14 31 8 24 8"/>
+                <path d="M38 24 C38 34 31 40 24 40"/>
+                <line x1="34" y1="21" x2="34" y2="27"/>
+                <line x1="18" y1="24" x2="46" y2="24"/>
+                <polyline points="43,19 48,24 43,29"/>
+            </svg></span>Therapeutisches <em>Bogenschiessen</em> (TBS)</h2>
+            <p class="rubrik-hint">Für Menschen ab 12 Jahren.</p>
+
+            <div class="tarif-group">
+                <h3 class="tarif-table-title">Einzelsitzung (TBS) <span>· pro 60-Minuten-Einheit</span></h3>
+                <table class="price-table">
+                    <tr><td>Normalpreis</td><td>141 CHF</td></tr>
+                    <tr><td>Wenig Verdienende</td><td>121 CHF</td></tr>
+                    <tr><td>Gönnerpreis 1</td><td>161 CHF</td></tr>
+                    <tr><td>Gönnerpreis 2</td><td>181 CHF</td></tr>
+                </table>
+            </div>
+
+            <div class="tarif-group">
+                <h3 class="tarif-table-title">Kleingruppe (TBS) 1–3 Personen <span>· pro 60-Minuten-Einheit</span></h3>
+                <table class="price-table">
+                    <tr><td>Normalpreis</td><td>71 CHF</td></tr>
+                    <tr><td>Wenig Verdienende</td><td>51 CHF</td></tr>
+                    <tr><td>Gönnerpreis 1</td><td>91 CHF</td></tr>
+                    <tr><td>Gönnerpreis 2</td><td>111 CHF</td></tr>
+                </table>
+                <p class="tarif-note">Insgesamt habe ich derzeit drei Bögen mit unterschiedlichen Spannkräften zur Verfügung. Einer ist ein Bogen für Kinder ab zwölf Jahren, die anderen haben eine stärkere Spannkraft. So gilt es jeweils zu schauen, wie ich eine Kleingruppe zusammenstellen kann.</p>
+            </div>
+        </div>
+
+        <!-- ── ZAHLUNG ── -->
+        <div class="zahlung reveal">
+            <span class="zahlung-label">Zahlungsmethoden</span>
+            <p>TWINT, bar oder Bankeinzahlung.</p>
+        </div>
+
+    </div>
+
+    <div class="closing reveal">
+        <p>«Was wir gemeinsam tragen, trägt auch uns.»</p>
+    </div>
+
+    <script>
+        // Nav scroll
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 60);
+        }, { passive: true });
+
+        // Mobile menu
+        function toggleMobile() {
+            const menu = document.getElementById('mobileMenu');
+            const hb = document.getElementById('hamburger');
+            menu.classList.toggle('open');
+            hb.classList.toggle('open');
+            document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+        }
+        function closeMobile() {
+            document.getElementById('mobileMenu').classList.remove('open');
+            document.getElementById('hamburger').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        // Reveal on scroll
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(e => {
+                if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+            });
+        }, { threshold: 0.12 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
