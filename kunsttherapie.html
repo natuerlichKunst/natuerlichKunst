@@ -555,16 +555,18 @@
         }
         .tool-btn:hover { background: rgba(240,234,216,0.08); color: var(--cream); }
         .tool-btn.active { background: var(--amber); color: var(--forest-dark); border-color: var(--amber); }
-        .size-dots { display: flex; gap: 0.6rem; align-items: center; }
+        .size-dots { display: flex; gap: 0.7rem; align-items: flex-end; margin-left: 0.6rem; }
         .size-dot {
-            border-radius: 50%;
-            background: var(--cream);
+            height: 58px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            opacity: 0.35;
+            opacity: 0.55;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            display: flex;
+            align-items: flex-end;
         }
-        .size-dot.active { opacity: 1; }
-        .size-dot:hover { opacity: 0.7; }
+        .size-dot svg { height: 100%; width: auto; display: block; transform: scaleY(-1); }
+        .size-dot.active { opacity: 1; transform: translateY(-4px); }
+        .size-dot:hover { opacity: 0.85; }
         .draw-hint {
             font-size: 0.68rem;
             color: var(--cream-dim);
@@ -573,6 +575,192 @@
         @media (max-width: 640px) {
             .zeichnen-block { padding: 0 1.5rem; }
             .leaf-btn { font-size: 0.62rem; padding: 0.7rem 0.5rem; }
+        }
+
+        /* ZEICHENSPIEL – Schritte, Ermutigung, Farben */
+        .zeichenspiel-titel { margin-bottom: 2rem; }
+        /* Schritt-Überschrift im gleichen Fließtext-Stil wie der Intro */
+        #zeichen-heading {
+            font-family: 'Jost', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 400;
+            line-height: 1.85;
+            color: var(--cream);
+            margin-bottom: 0.4rem;
+        }
+        #zeichen-body { transition: opacity 0.38s ease; }
+        .zeichen-step {
+            font-size: 0.68rem;
+            font-weight: 500;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--amber);
+            display: block;
+            margin-bottom: 0.6rem;
+        }
+        .color-palette {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            max-width: 700px;
+            margin-top: 0.9rem;
+            flex-wrap: wrap;
+        }
+        .color-label {
+            font-size: 0.62rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--cream-dim);
+            margin-right: 0.3rem;
+        }
+        .color-swatch {
+            height: 84px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            padding: 0;
+            opacity: 0.5;
+            display: flex;
+            align-items: flex-end;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .color-swatch svg { height: 100%; width: auto; display: block; transform: scaleY(-1); }
+        .color-swatch:hover { opacity: 0.85; transform: translateY(-3px); }
+        .color-swatch.active { opacity: 1; transform: translateY(-7px); }
+        /* Löschstift mit "radieren"-Beschriftung darunter */
+        .color-eraser {
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+            height: auto;
+        }
+        .color-eraser svg { height: 84px; transform: scaleY(-1); }
+        .eraser-label {
+            font-size: 0.55rem;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--cream-dim);
+        }
+        .zeichen-footer {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            max-width: 700px;
+            margin-top: 1.6rem;
+            flex-wrap: wrap;
+        }
+        .canvas-cheer {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 1.5rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-weight: 400;
+            font-size: clamp(1.6rem, 4vw, 2.4rem);
+            line-height: 1.4;
+            color: var(--amber);
+            background: rgba(249,245,236,0.9);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.45s ease;
+        }
+        .canvas-cheer.show { opacity: 1; }
+        .zeichen-nav {
+            margin-left: auto;
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+        }
+        .zeichen-next, .zeichen-back {
+            padding: 0.7rem 1.6rem;
+            background: transparent;
+            border: 1px solid rgba(240,234,216,0.25);
+            color: var(--cream-dim);
+            font-family: 'Jost', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .zeichen-next:hover, .zeichen-back:hover { background: rgba(240,234,216,0.08); color: var(--cream); }
+        .color-eraser { margin-left: 1.4rem; }
+        .zeichen-ende {
+            max-width: 640px;
+            opacity: 0;
+            transition: opacity 0.7s ease;
+        }
+        .zeichen-ende.show { opacity: 1; }
+        .zeichen-ende-dank {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.7rem, 3.8vw, 2.6rem);
+            font-style: italic;
+            line-height: 1.35;
+            color: var(--amber);
+            margin-bottom: 1.5rem;
+        }
+        .zeichen-ende-note {
+            font-size: 0.95rem;
+            line-height: 1.85;
+            color: var(--cream-dim);
+        }
+        .zeichen-ende-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1.8rem;
+        }
+        .zeichen-show-drawings {
+            padding: 0.7rem 1.5rem;
+            background: transparent;
+            border: 1px solid rgba(240,234,216,0.3);
+            color: var(--cream-dim);
+            font-family: 'Jost', sans-serif;
+            font-size: 0.68rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .zeichen-show-drawings:hover { background: rgba(240,234,216,0.08); color: var(--cream); }
+        .zeichen-gallery {
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+            max-width: 640px;
+        }
+        .zeichen-gallery.open { display: grid; }
+        .zeichen-thumb { margin: 0; }
+        .zeichen-thumb img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border: 1px solid rgba(240,234,216,0.18);
+            cursor: pointer;
+            transition: border-color 0.25s ease, opacity 0.25s ease;
+        }
+        .zeichen-thumb img:hover { border-color: var(--amber); opacity: 0.9; }
+        .zeichen-thumb figcaption {
+            font-size: 0.62rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--amber);
+            margin-top: 0.4rem;
+            text-align: center;
+        }
+        @media (max-width: 500px) { .zeichen-gallery { grid-template-columns: 1fr; } }
+        @media (max-width: 640px) {
+            .zeichen-next { margin-left: 0; }
         }
 
         /* HERO TITLE + EMBLEM (Icon links neben Titel, Titel bleibt an Position) */
@@ -680,7 +868,6 @@
                 <li>Collage</li>
                 <li>Fotografie</li>
                 <li>Plastizieren mit Tonerde</li>
-                <li>Holz- und Speckstein</li>
                 <li>Naturmaterialien aller Art</li>
             </ul>
         </div>
@@ -717,40 +904,75 @@
 
     <!-- ── NATURZEICHNEN ── -->
     <div class="zeichnen-block reveal">
-        <span class="galerie-title">Naturzeichnen</span>
-        <h2 class="zeichnen-title">Wähle ein Blatt. <em>Zeichne es nach.</em></h2>
-        <p class="zeichnen-intro">Welche Form entspricht dir heute am besten? Wie möchtest du sie ganz individuell ergänzen? Bleibt es ein Blatt? Wird es etwas Neues?</p>
-            <div class="leaf-selector reveal">
+        <span class="galerie-title">Lockeres zu Form und Farbe</span>
+        <h2 class="zeichnen-title zeichenspiel-titel">Ein Zeichenspiel <em>in drei Schritten</em></h2>
+
+        <div id="zeichen-body">
+            <span class="zeichen-step" id="zeichen-step">Schritt 1 von 3</span>
+            <h2 class="zeichnen-title" id="zeichen-heading">Wählen Sie ein Blatt, das Ihnen gefällt.</h2>
+            <p class="zeichnen-intro" id="zeichen-intro">Zeichnen Sie es nach. Auf der rechten Seite ist Platz dafür. Welche der drei Formen entspricht Ihnen heute am besten? Wie möchten Sie es ganz individuell ergänzen? Bleibt es ein Blatt? Wird es etwas Neues?</p>
+
+            <div class="leaf-selector reveal" id="leaf-selector">
                 <button class="leaf-btn active" data-leaf="loewenzahn">
-                    Löwenzahnblatt
                     <span class="leaf-latin">Taraxacum officinale</span>
                 </button>
                 <button class="leaf-btn" data-leaf="scharbockraut">
-                    Scharbockkrautblatt
-                    <span class="leaf-latin">Ficaria verna</span>
+                    <span class="leaf-latin">Ranunculus ficaria</span>
                 </button>
                 <button class="leaf-btn" data-leaf="eichenblatt">
-                    Eichenblatt
                     <span class="leaf-latin">Quercus robur</span>
                 </button>
             </div>
 
             <div class="draw-canvas-wrap reveal">
                 <canvas id="draw-canvas"></canvas>
+                <div class="canvas-cheer" id="canvas-cheer"></div>
             </div>
 
             <div class="draw-tools reveal">
                 <div class="draw-tool-left">
+                    <button class="tool-btn" id="undo-btn">Ein Schritt zurück</button>
                     <button class="tool-btn" id="clear-btn">Löschen</button>
                     <button class="tool-btn active" id="guide-btn">Vorlage</button>
                     <div class="size-dots">
-                        <div class="size-dot active" data-size="4" style="width:8px;height:8px;"></div>
-                        <div class="size-dot" data-size="8" style="width:13px;height:13px;"></div>
-                        <div class="size-dot" data-size="14" style="width:19px;height:19px;"></div>
+                        <div class="size-dot active" data-size="3" title="Dünn"><svg viewBox="0 0 24 74"><rect x="9.5" y="3" width="5" height="46" rx="1.5" fill="#7d786c"/><polygon points="9.5,48 14.5,48 12,64" fill="#7d786c"/></svg></div>
+                        <div class="size-dot" data-size="10" title="Mittel"><svg viewBox="0 0 24 74"><rect x="7" y="3" width="10" height="46" rx="2" fill="#7d786c"/><polygon points="7,48 17,48 12,64" fill="#7d786c"/></svg></div>
+                        <div class="size-dot" data-size="22" title="Dick"><svg viewBox="0 0 24 74"><rect x="4" y="3" width="16" height="46" rx="2.5" fill="#7d786c"/><polygon points="4,48 20,48 12,64" fill="#7d786c"/></svg></div>
                     </div>
                 </div>
-                <span class="draw-hint">Mit Maus oder Finger zeichnen</span>
             </div>
+
+            <div class="color-palette" id="color-palette" style="display:none;">
+                <button class="color-swatch" data-color="#FFFFFF" style="color:#FFFFFF;" aria-label="Weiß"><svg viewBox="0 0 24 74"><rect x="5" y="3" width="14" height="46" rx="2" fill="currentColor" stroke="rgba(120,110,90,0.35)" stroke-width="0.8"/><polygon points="5,48 19,48 12,64" fill="#E2CBA0"/><polygon points="10.3,59.5 13.7,59.5 12,64" fill="currentColor"/></svg></button>
+                <button class="color-swatch" data-color="#E3B93B" style="color:#E3B93B;" aria-label="Gelb"><svg viewBox="0 0 24 74"><rect x="5" y="3" width="14" height="46" rx="2" fill="currentColor"/><polygon points="5,48 19,48 12,64" fill="#E2CBA0"/><polygon points="10.3,59.5 13.7,59.5 12,64" fill="currentColor"/></svg></button>
+                <button class="color-swatch" data-color="#D98A2B" style="color:#D98A2B;" aria-label="Orange"><svg viewBox="0 0 24 74"><rect x="5" y="3" width="14" height="46" rx="2" fill="currentColor"/><polygon points="5,48 19,48 12,64" fill="#E2CBA0"/><polygon points="10.3,59.5 13.7,59.5 12,64" fill="currentColor"/></svg></button>
+                <button class="color-swatch" data-color="#B5472F" style="color:#B5472F;" aria-label="Rot"><svg viewBox="0 0 24 74"><rect x="5" y="3" width="14" height="46" rx="2" fill="currentColor"/><polygon points="5,48 19,48 12,64" fill="#E2CBA0"/><polygon points="10.3,59.5 13.7,59.5 12,64" fill="currentColor"/></svg></button>
+                <button class="color-swatch" data-color="#5B7A4B" style="color:#5B7A4B;" aria-label="Grün"><svg viewBox="0 0 24 74"><rect x="5" y="3" width="14" height="46" rx="2" fill="currentColor"/><polygon points="5,48 19,48 12,64" fill="#E2CBA0"/><polygon points="10.3,59.5 13.7,59.5 12,64" fill="currentColor"/></svg></button>
+                <button class="color-swatch" data-color="#3E6B8C" style="color:#3E6B8C;" aria-label="Blau"><svg viewBox="0 0 24 74"><rect x="5" y="3" width="14" height="46" rx="2" fill="currentColor"/><polygon points="5,48 19,48 12,64" fill="#E2CBA0"/><polygon points="10.3,59.5 13.7,59.5 12,64" fill="currentColor"/></svg></button>
+                <button class="color-swatch" data-color="#7A5C86" style="color:#7A5C86;" aria-label="Violett"><svg viewBox="0 0 24 74"><rect x="5" y="3" width="14" height="46" rx="2" fill="currentColor"/><polygon points="5,48 19,48 12,64" fill="#E2CBA0"/><polygon points="10.3,59.5 13.7,59.5 12,64" fill="currentColor"/></svg></button>
+                <button class="color-swatch" data-color="#6E4128" style="color:#6E4128;" aria-label="Braun"><svg viewBox="0 0 24 74"><rect x="5" y="3" width="14" height="46" rx="2" fill="currentColor"/><polygon points="5,48 19,48 12,64" fill="#E2CBA0"/><polygon points="10.3,59.5 13.7,59.5 12,64" fill="currentColor"/></svg></button>
+                <button class="color-swatch" data-color="#8A8880" style="color:#8A8880;" aria-label="Grau"><svg viewBox="0 0 24 74"><rect x="5" y="3" width="14" height="46" rx="2" fill="currentColor"/><polygon points="5,48 19,48 12,64" fill="#E2CBA0"/><polygon points="10.3,59.5 13.7,59.5 12,64" fill="currentColor"/></svg></button>
+                <button class="color-swatch active" data-color="#1A1A1A" style="color:#1A1A1A;" aria-label="Schwarz"><svg viewBox="0 0 24 74"><rect x="5" y="3" width="14" height="46" rx="2" fill="currentColor"/><polygon points="5,48 19,48 12,64" fill="#E2CBA0"/><polygon points="10.3,59.5 13.7,59.5 12,64" fill="currentColor"/></svg></button>
+                <button class="color-swatch color-eraser" data-color="#F9F5EC" style="color:#ECE4D4;" aria-label="Löschstift" title="Löschstift"><svg viewBox="0 0 24 74"><rect x="5" y="3" width="14" height="44" rx="2" fill="currentColor" stroke="rgba(120,110,90,0.4)" stroke-width="0.8"/><path d="M5 47 L19 47 L19 55 Q19 64 12 64 Q5 64 5 55 Z" fill="#E7A6AE" stroke="#ffffff" stroke-width="0.7"/></svg><span class="eraser-label">radieren</span></button>
+            </div>
+
+            <div class="zeichen-footer">
+                <div class="zeichen-nav">
+                    <button class="zeichen-back" id="zeichen-back" style="display:none;">← Zurück</button>
+                    <button class="zeichen-next" id="zeichen-next">Weiter zur 2. Übung →</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="zeichen-ende" id="zeichen-ende" style="display:none;">
+            <p class="zeichen-ende-dank">Vielen Dank fürs Mitmachen! Haben Sie es bemerkt? Sie haben sich gerade drei Erfahrungsgeschenke gemacht. Und vielleicht sogar noch mehr.</p>
+            <p class="zeichen-ende-note">Wenn Sie mögen, notieren Sie sich – ganz für sich – ein paar Gedanken und Eindrücke über das, was Sie gerade erlebt haben. Beobachten hilft beim Einordnen und Verstehen.</p>
+            <div class="zeichen-ende-actions">
+                <button class="zeichen-show-drawings" id="zeichen-show-drawings">Meine drei Zeichnungen ansehen</button>
+                <button class="zeichen-show-drawings" id="zeichen-restart">Nochmals zeichnen</button>
+            </div>
+            <div class="zeichen-gallery" id="zeichen-gallery"></div>
+        </div>
     </div>
 
     <script>
@@ -761,11 +983,19 @@
         canvas.width = W;
         canvas.height = H;
 
+        let currentStep = 1;
         let currentLeaf = 'loewenzahn';
         let showGuide = true;
-        let penSize = 4;
+        let penSize = 3;
+        let penColor = '#1A3028';
         let drawing = false;
         let lastX = 0, lastY = 0;
+        let undoStack = [];
+        let hasDrawnThisStep = false;
+        let savedDrawings = [];
+
+        // Blatt-Vorlage sitzt links, damit rechts Platz zum Zeichnen bleibt
+        const LEAF_CX = 172, LEAF_CY = H / 2;
 
         // ── LEAF PATHS ──────────────────────────────────────────
 
@@ -893,42 +1123,31 @@
 
         // ── RENDER ──────────────────────────────────────────────
 
+        // Handgezeichnete Blatt-Vorlagen (freigestellt) vorladen
+        const leafNames = { loewenzahn: 'Taraxacum officinale', scharbockraut: 'Ranunculus ficaria', eichenblatt: 'Quercus robur' };
+        const leafImages = {};
+        Object.keys(leafNames).forEach(k => {
+            const img = new Image();
+            img.onload = redrawGuide;
+            img.src = 'images/blaetter/' + k + '.png?v=2';
+            leafImages[k] = img;
+        });
+
         function renderGuide() {
-            if (!showGuide) return;
-            const cx = W / 2, cy = H / 2 + 8;
-            const fn = { loewenzahn: pathLoewenzahn, scharbockraut: pathScharbockraut, eichenblatt: pathEichenblatt };
+            // Vorlage nur in Schritt 1 (Blatt) und wenn eingeblendet
+            if (currentStep !== 1 || !showGuide) return;
+            const img = leafImages[currentLeaf];
+            if (!img || !img.complete || !img.naturalWidth) return;
 
-            // Leaf fill
-            fn[currentLeaf](ctx, cx, cy);
-            ctx.fillStyle = 'rgba(74,122,101,0.06)';
-            ctx.fill();
-
-            // Leaf outline
-            fn[currentLeaf](ctx, cx, cy);
-            ctx.strokeStyle = 'rgba(42,74,60,0.22)';
-            ctx.lineWidth = 1.5;
-            ctx.setLineDash([4, 4]);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            // Midrib
-            pathMidrib(ctx, cx, cy, currentLeaf);
-            ctx.strokeStyle = 'rgba(42,74,60,0.15)';
-            ctx.lineWidth = 1;
-            ctx.stroke();
-
-            // Veins
-            pathVeins(ctx, cx, cy, currentLeaf);
-            ctx.strokeStyle = 'rgba(42,74,60,0.1)';
-            ctx.lineWidth = 0.8;
-            ctx.stroke();
-
-            // Label
-            ctx.fillStyle = 'rgba(42,74,60,0.25)';
-            ctx.font = 'italic 300 13px Cormorant Garamond, serif';
-            ctx.textAlign = 'center';
-            const names = { loewenzahn: 'Taraxacum officinale', scharbockraut: 'Ficaria verna', eichenblatt: 'Quercus robur' };
-            ctx.fillText(names[currentLeaf], W/2, H - 18);
+            // Handzeichnung links platzieren, rechts bleibt Platz zum Zeichnen
+            const maxH = 300;
+            const scale = maxH / img.naturalHeight;
+            const dW = img.naturalWidth * scale, dH = maxH;
+            const x = 42, y = (H - dH) / 2 - 8;
+            ctx.save();
+            ctx.globalAlpha = 0.9;
+            ctx.drawImage(img, x, y, dW, dH);
+            ctx.restore();
         }
 
         function redrawGuide() {
@@ -959,8 +1178,15 @@
 
         function startDraw(e) {
             drawing = true;
+            pushUndo();
             const pos = getPos(e);
             lastX = pos.x; lastY = pos.y;
+            // Punkt setzen, damit auch ein einzelner Klick/Tipp zeichnet
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, penSize / 2, 0, Math.PI * 2);
+            ctx.fillStyle = penColor;
+            ctx.fill();
+            hasDrawnThisStep = true;
         }
 
         function draw(e) {
@@ -970,7 +1196,7 @@
             ctx.beginPath();
             ctx.moveTo(lastX, lastY);
             ctx.lineTo(pos.x, pos.y);
-            ctx.strokeStyle = '#1A3028';
+            ctx.strokeStyle = penColor;
             ctx.lineWidth = penSize;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
@@ -990,16 +1216,120 @@
 
         // ── CONTROLS ────────────────────────────────────────────
 
+        // ── UNDO ────────────────────────────────────────────────
+        function pushUndo() {
+            try {
+                undoStack.push(ctx.getImageData(0, 0, W, H));
+                if (undoStack.length > 25) undoStack.shift();
+            } catch (e) {}
+        }
+        function undo() {
+            if (!undoStack.length) return;
+            ctx.putImageData(undoStack.pop(), 0, 0);
+        }
+
+        // ── SCHRITTE ────────────────────────────────────────────
+        const STEPS = {
+            1: { step: 'Schritt 1 von 3:',
+                 heading: 'Wählen Sie ein Blatt, das Ihnen gefällt.',
+                 intro: 'Zeichnen Sie es nach. Auf der rechten Seite ist Platz dafür. Welche der drei Formen entspricht Ihnen heute am besten? Wie möchten Sie es ganz individuell ergänzen? Bleibt es ein Blatt? Wird es etwas Neues?',
+                 leaf: true, guide: true, palette: false,
+                 cheer: 'Danke!', next: 'Weiter zur 2. Übung →' },
+            2: { step: 'Schritt 2 von 3:',
+                 heading: 'Welche Eigenschaft eines Tiers könnte heute für Sie hilfreich sein?',
+                 intro: 'Zeichnen Sie das Tier hier auf. Ob aus dem Gedächtnis oder nach einer Vorlage überlasse ich Ihnen. Es können auch ganz einfach nur drei Schnauzhaare sein, oder kleine Insektenantennen, die Sie hinterlassen. Natürlich dürfen Sie sich auch einen ganzen Tiger vornehmen. Keine Bange, nur Sie selbst schauen zu.',
+                 leaf: false, guide: false, palette: false,
+                 cheer: 'Hat das ein bisschen Spass gemacht?', next: 'Bereit für eine letzte Zeichnung? →' },
+            3: { step: 'Schritt 3 von 3:',
+                 heading: 'Haben Sie noch Lust auf eine dritte zeichnerische Gestaltung?',
+                 intro: 'Lassen Sie Ihrer Phantasie freien Lauf: Wo würden Sie sich jetzt richtig wohl fühlen?',
+                 leaf: false, guide: false, palette: true,
+                 cheer: '', next: 'Zeichnungen abschliessen →' }
+        };
+
+        // Grosses "Danke!" kurz ueber dem Zeichenfeld aufleuchten lassen, dann weiter
+        function flashCheer(text, done, hold) {
+            hold = hold || 1100;
+            const el = document.getElementById('canvas-cheer');
+            el.textContent = text;
+            el.classList.add('show');
+            setTimeout(() => {
+                el.classList.remove('show');
+                setTimeout(() => { el.textContent = ''; done(); }, 480);
+            }, hold);
+        }
+
+        function applyStep(n) {
+            currentStep = n;
+            const s = STEPS[n];
+            document.getElementById('zeichen-step').textContent = s.step;
+            document.getElementById('zeichen-heading').textContent = s.heading;
+            document.getElementById('zeichen-intro').textContent = s.intro;
+            document.getElementById('leaf-selector').style.display = s.leaf ? '' : 'none';
+            document.getElementById('guide-btn').style.display = s.guide ? '' : 'none';
+            document.getElementById('color-palette').style.display = s.palette ? 'flex' : 'none';
+            document.getElementById('zeichen-next').textContent = s.next;
+            const cheer = document.getElementById('canvas-cheer');
+            cheer.classList.remove('show');
+            cheer.textContent = '';
+            hasDrawnThisStep = false;
+            penColor = (n === 3) ? '#E3B93B' : '#1A1A1A';
+            document.querySelectorAll('.color-swatch').forEach(sw => sw.classList.toggle('active', sw.dataset.color === penColor));
+            showGuide = s.guide;
+            document.getElementById('guide-btn').classList.toggle('active', showGuide);
+            document.getElementById('zeichen-back').style.display = (n > 1) ? '' : 'none';
+            undoStack = [];
+            redrawGuide();
+            // Falls für diesen Schritt schon gezeichnet wurde: wiederherstellen
+            if (savedDrawings[n - 1]) {
+                const im = new Image();
+                im.onload = () => { ctx.drawImage(im, 0, 0); };
+                im.src = savedDrawings[n - 1];
+            }
+        }
+
+        function crossfadeToStep(n) {
+            const body = document.getElementById('zeichen-body');
+            body.style.opacity = '0';
+            setTimeout(() => { applyStep(n); body.style.opacity = '1'; }, 380);
+        }
+
+        function finishGame() {
+            // Abschlusstext gross ueber dem Zeichenfeld (bleibt stehen)
+            const cc = document.getElementById('canvas-cheer');
+            const dankEl = document.querySelector('.zeichen-ende-dank');
+            cc.textContent = dankEl.textContent;
+            cc.classList.add('show');
+            dankEl.style.display = 'none';
+            // Steuerung und Schritt-Texte ausblenden, Zeichenfeld bleibt
+            ['zeichen-step','zeichen-heading','zeichen-intro','color-palette'].forEach(id => {
+                const e = document.getElementById(id); if (e) e.style.display = 'none';
+            });
+            document.querySelector('.draw-tools').style.display = 'none';
+            document.querySelector('.zeichen-footer').style.display = 'none';
+            // Notiz + Buttons darunter zeigen
+            const ende = document.getElementById('zeichen-ende');
+            ende.style.display = 'block';
+            setTimeout(() => ende.classList.add('show'), 30);
+        }
+
+        // ── CONTROLS ────────────────────────────────────────────
         document.querySelectorAll('.leaf-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.leaf-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentLeaf = btn.dataset.leaf;
+                undoStack = [];
                 redrawGuide();
             });
         });
 
-        document.getElementById('clear-btn').addEventListener('click', redrawGuide);
+        document.getElementById('undo-btn').addEventListener('click', undo);
+
+        document.getElementById('clear-btn').addEventListener('click', function() {
+            pushUndo();
+            redrawGuide();
+        });
 
         document.getElementById('guide-btn').addEventListener('click', function() {
             showGuide = !showGuide;
@@ -1015,8 +1345,89 @@
             });
         });
 
+        document.querySelectorAll('.color-swatch').forEach(sw => {
+            sw.addEventListener('click', function() {
+                document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+                this.classList.add('active');
+                penColor = this.dataset.color;
+            });
+        });
+
+        function captureCurrent() {
+            // aktuelle Zeichnung sichern, bevor die Leinwand gewechselt wird
+            try { savedDrawings[currentStep - 1] = canvas.toDataURL('image/png'); } catch (e) {}
+        }
+
+        function proceedForward() {
+            captureCurrent();
+            if (currentStep < 3) crossfadeToStep(currentStep + 1);
+            else finishGame();
+        }
+
+        document.getElementById('zeichen-next').addEventListener('click', () => {
+            const cheer = STEPS[currentStep].cheer;
+            if (hasDrawnThisStep && cheer) {
+                flashCheer(cheer, proceedForward, currentStep === 2 ? 2000 : 1100);
+            } else {
+                proceedForward();
+            }
+        });
+
+        document.getElementById('zeichen-back').addEventListener('click', () => {
+            if (currentStep <= 1) return;
+            captureCurrent();
+            crossfadeToStep(currentStep - 1);
+        });
+
+        document.getElementById('zeichen-show-drawings').addEventListener('click', function() {
+            const gal = document.getElementById('zeichen-gallery');
+            if (!gal.children.length) {
+                savedDrawings.forEach((src, i) => {
+                    if (!src) return;
+                    const fig = document.createElement('figure');
+                    fig.className = 'zeichen-thumb';
+                    const img = document.createElement('img');
+                    img.src = src;
+                    img.alt = 'Ihre Zeichnung ' + (i + 1);
+                    img.addEventListener('click', () => {
+                        const lb = document.getElementById('lightbox');
+                        const lbImg = document.getElementById('lightboxImg');
+                        lbImg.src = src;
+                        lbImg.alt = img.alt;
+                        lb.classList.add('open');
+                    });
+                    fig.appendChild(img);
+                    gal.appendChild(fig);
+                });
+            }
+            gal.classList.toggle('open');
+            this.textContent = gal.classList.contains('open')
+                ? 'Zeichnungen ausblenden'
+                : 'Meine drei Zeichnungen ansehen';
+        });
+
+        document.getElementById('zeichen-restart').addEventListener('click', () => {
+            // Abschluss-Overlay und -Block zuruecksetzen
+            const cc = document.getElementById('canvas-cheer');
+            cc.classList.remove('show'); cc.textContent = '';
+            const ende = document.getElementById('zeichen-ende');
+            ende.classList.remove('show'); ende.style.display = 'none';
+            document.querySelector('.zeichen-ende-dank').style.display = '';
+            // Galerie leeren
+            const gal = document.getElementById('zeichen-gallery');
+            gal.innerHTML = ''; gal.classList.remove('open');
+            document.getElementById('zeichen-show-drawings').textContent = 'Meine drei Zeichnungen ansehen';
+            // Steuerung und Schritt-Texte wieder einblenden
+            ['zeichen-step','zeichen-heading','zeichen-intro'].forEach(id => { document.getElementById(id).style.display = ''; });
+            document.querySelector('.draw-tools').style.display = '';
+            document.querySelector('.zeichen-footer').style.display = '';
+            // Alles zuruecksetzen und neu beginnen
+            savedDrawings = [];
+            applyStep(1);
+        });
+
         // Init
-        redrawGuide();
+        applyStep(1);
     })();
     </script>
 
