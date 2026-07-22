@@ -1306,10 +1306,10 @@
             const cc = document.getElementById('canvas-cheer');
             const dankEl = document.querySelector('.zeichen-ende-dank');
             dankEl.style.display = 'none';
-            if (stepDrawn.every(Boolean)) {
-                cc.textContent = dankEl.textContent;
-                cc.classList.add('show');
-            }
+            cc.textContent = stepDrawn.every(Boolean)
+                ? dankEl.textContent
+                : 'Wollen Sie es mal versuchen? Probieren geht über Studieren.';
+            cc.classList.add('show');
             // Steuerung und Schritt-Texte ausblenden, Zeichenfeld bleibt
             ['zeichen-step','zeichen-heading','zeichen-intro','color-palette'].forEach(id => {
                 const e = document.getElementById(id); if (e) e.style.display = 'none';
