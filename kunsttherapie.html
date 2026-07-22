@@ -695,6 +695,7 @@
         .color-eraser { margin-left: 1.4rem; }
         .zeichen-ende {
             max-width: 640px;
+            margin-top: 6.5rem;
             opacity: 0;
             transition: opacity 0.7s ease;
         }
@@ -994,6 +995,7 @@
         let hasDrawnThisStep = false;
         let savedDrawings = [];
         let stepDrawn = [false, false, false];
+        let gameEnded = false;
 
         // Blatt-Vorlage sitzt links, damit rechts Platz zum Zeichnen bleibt
         const LEAF_CX = 172, LEAF_CY = H / 2;
@@ -1178,6 +1180,7 @@
         }
 
         function startDraw(e) {
+            if (gameEnded) return;
             drawing = true;
             pushUndo();
             const pos = getPos(e);
@@ -1263,6 +1266,7 @@
 
         function applyStep(n) {
             currentStep = n;
+            gameEnded = false;
             const s = STEPS[n];
             document.getElementById('zeichen-step').textContent = s.step;
             document.getElementById('zeichen-heading').textContent = s.heading;
@@ -1297,6 +1301,7 @@
         }
 
         function finishGame() {
+            gameEnded = true;   // ab jetzt kein Zeichnen mehr
             // Abschlusstext nur, wenn in allen drei Uebungen gezeichnet wurde
             const cc = document.getElementById('canvas-cheer');
             const dankEl = document.querySelector('.zeichen-ende-dank');
